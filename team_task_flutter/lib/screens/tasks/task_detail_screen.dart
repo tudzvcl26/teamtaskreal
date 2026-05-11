@@ -1,4 +1,7 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../models/attachment_model.dart';
 import '../../models/task_activity_log_model.dart';
@@ -33,6 +36,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final Map<String, String> _groupNameCache = {};
 
   bool _isSendingComment = false;
+  bool _isUploadingAttachment = false;
 
   @override
   void dispose() {
@@ -42,16 +46,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Future<String> _getUserName(String userId) async {
     if (userId.isEmpty) return 'Chưa giao';
-    if (_userNameCache.containsKey(userId)) return _userNameCache[userId]!;
+
+    if (_userNameCache.containsKey(userId)) {
+      return _userNameCache[userId]!;
+    }
+
     final name = await _taskService.getUserName(userId);
     _userNameCache[userId] = name;
+
     return name;
   }
 
   Future<String> _getGroupName(String groupId) async {
-    if (_groupNameCache.containsKey(groupId)) return _groupNameCache[groupId]!;
+    if (_groupNameCache.containsKey(groupId)) {
+      return _groupNameCache[groupId]!;
+    }
+
     final name = await _taskService.getGroupName(groupId);
     _groupNameCache[groupId] = name;
+
     return name;
   }
 
@@ -151,11 +164,55 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  bool _isImageAttachment(AttachmentModel attachment) {
+    final type = attachment.fileType.toLowerCase();
+    final name = attachment.fileName.toLowerCase();
+
+    return type.contains('image') ||
+        name.endsWith('.png') ||
+        name.endsWith('.jpg') ||
+        name.endsWith('.jpeg') ||
+        name.endsWith('.webp') ||
+        name.endsWith('.gif');
+  }
+
+  String _contentTypeFromFileName(String fileName) {
+    final lower = fileName.toLowerCase();
+
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+
+    return 'application/octet-stream';
+  }
+
+  String _fileTypeFromFileName(String fileName) {
+    final lower = fileName.toLowerCase();
+
+    if (lower.endsWith('.png') ||
+        lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.webp') ||
+        lower.endsWith('.gif')) {
+      return 'image';
+    }
+
+    if (lower.endsWith('.pdf')) return 'pdf';
+    if (lower.endsWith('.doc') || lower.endsWith('.docx')) return 'docx';
+    if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) return 'xlsx';
+
+    return 'file';
+  }
+
   Future<void> _sendComment(TaskModel task) async {
     final content = _commentController.text.trim();
     if (content.isEmpty) return;
 
-    setState(() => _isSendingComment = true);
+    setState(() {
+      _isSendingComment = true;
+    });
 
     try {
       await _taskService.addComment(
@@ -163,14 +220,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         content: content,
         groupId: task.groupId,
       );
+
       _commentController.clear();
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gửi bình luận thất bại: $e')),
       );
     } finally {
       if (mounted) {
-        setState(() => _isSendingComment = false);
+        setState(() {
+          _isSendingComment = false;
+        });
       }
     }
   }
@@ -193,11 +255,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Future<void> _markDone(TaskModel task) async {
     try {
       await _taskService.markTaskDone(task);
+
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã chuyển sang hoàn thành')),
       );
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cập nhật trạng thái thất bại: $e')),
       );
@@ -227,9 +293,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     try {
       await _taskService.deleteTask(task);
+
       if (!mounted) return;
+
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Xóa công việc thất bại: $e')),
       );
@@ -237,89 +307,78 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Future<void> _showAddAttachmentDialog(TaskModel task) async {
-    final fileNameController = TextEditingController();
-    final fileUrlController = TextEditingController();
-    final fileTypeController = TextEditingController();
+    if (_isUploadingAttachment) return;
 
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Thêm tệp đính kèm'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: fileNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Tên file',
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: fileUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Link file / URL',
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: fileTypeController,
-                decoration: const InputDecoration(
-                  labelText: 'Loại file (pdf, image, docx...)',
-                ),
-              ),
-            ],
-          ),
+    try {
+      final picker = ImagePicker();
+
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null) return;
+
+      setState(() {
+        _isUploadingAttachment = true;
+      });
+
+      final bytes = await pickedFile.readAsBytes();
+
+      final originalName = pickedFile.name.isNotEmpty
+          ? pickedFile.name
+          : 'attachment_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final safeName = originalName.replaceAll(
+        RegExp(r'[^a-zA-Z0-9._-]'),
+        '_',
+      );
+
+      final storagePath =
+          'task_attachments/${task.groupId}/${task.taskId}/${DateTime.now().millisecondsSinceEpoch}_$safeName';
+
+      final ref = FirebaseStorage.instance.ref().child(storagePath);
+
+      final uploadResult = await ref.putData(
+        bytes,
+        SettableMetadata(
+          contentType: _contentTypeFromFileName(originalName),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final fileName = fileNameController.text.trim();
-              final fileUrl = fileUrlController.text.trim();
-              final fileType = fileTypeController.text.trim();
+      );
 
-              if (fileName.isEmpty || fileUrl.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Vui lòng nhập tên file và URL'),
-                  ),
-                );
-                return;
-              }
+      final downloadUrl = await uploadResult.ref.getDownloadURL();
 
-              await _taskService.addAttachment(
-                taskId: task.taskId,
-                fileName: fileName,
-                fileUrl: fileUrl,
-                fileType: fileType.isEmpty ? 'file' : fileType,
-              );
+      await _taskService.addAttachment(
+        taskId: task.taskId,
+        fileName: originalName,
+        fileUrl: downloadUrl,
+        fileType: _fileTypeFromFileName(originalName),
+      );
 
-              if (!mounted) return;
-              Navigator.pop(context, true);
-            },
-            child: const Text('Thêm'),
-          ),
-        ],
-      ),
-    );
+      if (!mounted) return;
 
-    fileNameController.dispose();
-    fileUrlController.dispose();
-    fileTypeController.dispose();
-
-    if (result == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã thêm tệp đính kèm')),
       );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Thêm tệp thất bại: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingAttachment = false;
+        });
+      }
     }
   }
 
-  Future<void> _deleteAttachment(TaskModel task, AttachmentModel attachment) async {
+  Future<void> _deleteAttachment(
+    TaskModel task,
+    AttachmentModel attachment,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -340,22 +399,67 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     if (confirm != true) return;
 
-    await _taskService.deleteAttachment(
-      attachment: attachment,
-      groupId: task.groupId,
-    );
+    try {
+      await _taskService.deleteAttachment(
+        attachment: attachment,
+        groupId: task.groupId,
+      );
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã xóa tệp đính kèm')),
-    );
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã xóa tệp đính kèm')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Xóa tệp thất bại: $e')),
+      );
+    }
   }
 
   void _openAttachment(AttachmentModel attachment) {
+    final isImage = _isImageAttachment(attachment);
+
+    if (isImage && attachment.fileUrl.startsWith('http')) {
+      showDialog(
+        context: context,
+        builder: (_) => Dialog(
+          insetPadding: const EdgeInsets.all(16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              color: Colors.black,
+              child: InteractiveViewer(
+                child: Image.network(
+                  attachment.fileUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) {
+                    return const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Không tải được ảnh',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    Clipboard.setData(
+      ClipboardData(text: attachment.fileUrl),
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Link file: ${attachment.fileUrl}'),
-      ),
+      const SnackBar(content: Text('Đã copy link tệp')),
     );
   }
 
@@ -390,9 +494,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         }
 
         final task = snapshot.data;
+
         if (task == null) {
           return const Scaffold(
-            body: Center(child: Text('Không tìm thấy công việc')),
+            body: Center(
+              child: Text(
+                'Không tìm thấy công việc hoặc bạn không còn quyền truy cập',
+              ),
+            ),
           );
         }
 
@@ -676,13 +785,32 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 builder: (context, snapshot) {
                   final attachments = snapshot.data ?? [];
 
-                  return TaskAttachmentsSection(
-                    attachments: attachments,
-                    getUserName: _getUserName,
-                    onAddPressed: () => _showAddAttachmentDialog(task),
-                    onDelete: (attachment) =>
-                        _deleteAttachment(task, attachment),
-                    onTapAttachment: _openAttachment,
+                  return Stack(
+                    children: [
+                      TaskAttachmentsSection(
+                        attachments: attachments,
+                        getUserName: _getUserName,
+                        onAddPressed: _isUploadingAttachment
+                            ? null
+                            : () => _showAddAttachmentDialog(task),
+                        onDelete: (attachment) {
+                          _deleteAttachment(task, attachment);
+                        },
+                        onTapAttachment: _openAttachment,
+                      ),
+                      if (_isUploadingAttachment)
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.65),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

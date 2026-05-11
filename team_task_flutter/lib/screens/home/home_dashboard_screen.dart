@@ -3,7 +3,6 @@ import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/models/dashboard_data.dart';
 import 'package:team_task_flutter/screens/groups/create_edit_group_screen.dart';
 import 'package:team_task_flutter/screens/groups/group_detail_screen.dart';
-import 'package:team_task_flutter/screens/groups/groups_screen.dart';
 import 'package:team_task_flutter/services/dashboard_service.dart';
 import 'package:team_task_flutter/widgets/dashboard_stat_card.dart';
 import 'package:team_task_flutter/widgets/recent_group_card.dart';
@@ -12,10 +11,12 @@ import 'package:team_task_flutter/widgets/upcoming_deadline_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   final VoidCallback? onOpenProfileTab;
+  final VoidCallback? onOpenGroupsTab;
 
   const HomeDashboardScreen({
     super.key,
     this.onOpenProfileTab,
+    this.onOpenGroupsTab,
   });
 
   @override
@@ -53,18 +54,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   void openGroupsScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => GroupsScreen(
-          onOpenProfileTab: widget.onOpenProfileTab,
-        ),
-      ),
-    );
+    widget.onOpenGroupsTab?.call();
   }
 
   void openGroupDetail(String groupId) {
     if (groupId.isEmpty) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -193,7 +188,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Row(
           children: const [
-            Icon(Icons.menu, color: AppColors.primary),
+            Icon(
+              Icons.menu,
+              color: AppColors.primary,
+            ),
             SizedBox(width: 10),
             Text(
               'Team Task',
@@ -214,7 +212,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               color: const Color(0xFFE0E7FF),
               borderRadius: BorderRadius.circular(19),
             ),
-            child: const Icon(Icons.person, color: AppColors.primary),
+            child: const Icon(
+              Icons.person,
+              color: AppColors.primary,
+            ),
           ),
         ),
       ],
@@ -337,7 +338,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         dashboard.recentGroups.isEmpty
             ? const Text(
                 'Chưa có nhóm nào',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                ),
               )
             : SizedBox(
                 height: 130,
@@ -382,14 +385,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 color: AppColors.primary,
               ),
             ),
-            Icon(Icons.more_horiz, color: AppColors.textSecondary),
+            Icon(
+              Icons.more_horiz,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
         const SizedBox(height: 14),
         dashboard.todayTasks.isEmpty
             ? const Text(
                 'Hôm nay không có công việc nào',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                ),
               )
             : Column(
                 children: dashboard.todayTasks.map((task) {
@@ -425,12 +433,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
   String _getInitials(String text) {
     if (text.trim().isEmpty) return 'TT';
+
     final words = text.trim().split(' ');
+
     if (words.length == 1) {
-      return words.first
-          .substring(0, words.first.length >= 2 ? 2 : 1)
-          .toUpperCase();
+      final word = words.first;
+      return word.substring(0, word.length >= 2 ? 2 : 1).toUpperCase();
     }
+
     return (words.first[0] + words.last[0]).toUpperCase();
   }
 

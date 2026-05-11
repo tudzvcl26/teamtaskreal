@@ -18,6 +18,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   late Future<ProfileData> profileFuture;
 
+  String selectedLanguage = 'Tiếng Việt';
+
+  final List<String> languages = const [
+    'Tiếng Việt',
+    'English',
+    '日本語',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +64,110 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> openLanguagePicker() async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 42,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Chọn ngôn ngữ',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ...languages.map(
+                  (language) {
+                    final isSelected = selectedLanguage == language;
+
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        setState(() {
+                          selectedLanguage = language;
+                        });
+
+                        Navigator.pop(context);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Đã chọn $language'),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFE0E7FF)
+                              : const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.transparent,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                language,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              const Icon(
+                                Icons.check_circle,
+                                color: AppColors.primary,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> handleLogout() async {
     await profileService.logout();
 
@@ -70,11 +182,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   String getInitials(String name) {
     final trimmed = name.trim();
+
     if (trimmed.isEmpty) return 'U';
+
     final words = trimmed.split(' ');
+
     if (words.length == 1) {
-      return words.first.substring(0, words.first.length >= 2 ? 2 : 1).toUpperCase();
+      return words.first
+          .substring(0, words.first.length >= 2 ? 2 : 1)
+          .toUpperCase();
     }
+
     return (words.first[0] + words.last[0]).toUpperCase();
   }
 
@@ -493,10 +611,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         buildMenuButton(
           icon: Icons.language,
           title: 'Ngôn ngữ',
-          trailingText: 'Tiếng Việt',
+          trailingText: selectedLanguage,
           iconBg: const Color(0xFFF3F4F6),
           iconColor: AppColors.textSecondary,
-          onTap: () {},
+          onTap: openLanguagePicker,
         ),
       ],
     );

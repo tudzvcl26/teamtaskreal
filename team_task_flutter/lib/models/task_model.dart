@@ -108,7 +108,6 @@ class TaskModel {
 
   bool get isOverdue {
     if (dueDate == null || isDone) return false;
-    final now = DateTime.now();
-    return dueDate!.isBefore(DateTime(now.year, now.month, now.day + 1));
+    return dueDate!.isBefore(DateTime.now());
   }
 }

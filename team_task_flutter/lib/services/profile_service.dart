@@ -46,20 +46,40 @@ class ProfileService {
       avatar = userData['avatar'] ?? '';
     }
 
-    final assignedTasks = await _firestore
-        .collection('tasks')
-        .where('assignedTo', isEqualTo: uid)
+    final memberSnapshot = await _firestore
+        .collection('group_members')
+        .where('userId', isEqualTo: uid)
+        .where('status', isEqualTo: 'active')
         .get();
+
+    final groupIds = memberSnapshot.docs
+        .map((doc) => (doc.data()['groupId'] ?? '').toString())
+        .where((id) => id.isNotEmpty)
+        .toSet()
+        .toList();
 
     int activeTasks = 0;
     int completedTasks = 0;
 
-    for (final doc in assignedTasks.docs) {
-      final status = (doc.data()['status'] ?? '').toString().toLowerCase();
-      if (status == 'done') {
-        completedTasks++;
-      } else {
-        activeTasks++;
+    for (int i = 0; i < groupIds.length; i += 10) {
+      final chunk = groupIds.sublist(
+        i,
+        i + 10 > groupIds.length ? groupIds.length : i + 10,
+      );
+
+      final assignedTasks = await _firestore
+          .collection('tasks')
+          .where('groupId', whereIn: chunk)
+          .where('assignedTo', isEqualTo: uid)
+          .get();
+
+      for (final doc in assignedTasks.docs) {
+        final status = (doc.data()['status'] ?? '').toString().toLowerCase();
+        if (status == 'done') {
+          completedTasks++;
+        } else {
+          activeTasks++;
+        }
       }
     }
 
@@ -96,19 +116,29 @@ class ProfileService {
 
     final currentEmail = (user.email ?? '').trim().toLowerCase();
 
-    if (trimmedEmail != currentEmail) {
-      await user.verifyBeforeUpdateEmail(trimmedEmail);
-    }
-
     await user.updateDisplayName(trimmedName);
 
-    await _firestore.collection('users').doc(user.uid).set({
+    final profileData = <String, dynamic>{
       'userId': user.uid,
       'name': trimmedName,
-      'email': trimmedEmail,
+      'email': currentEmail,
       'avatar': avatar,
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    };
+
+    if (trimmedEmail != currentEmail) {
+      await user.verifyBeforeUpdateEmail(trimmedEmail);
+      profileData['pendingEmail'] = trimmedEmail;
+      profileData['emailChangeRequestedAt'] = FieldValue.serverTimestamp();
+    } else {
+      profileData['pendingEmail'] = FieldValue.delete();
+      profileData['emailChangeRequestedAt'] = FieldValue.delete();
+    }
+
+    await _firestore.collection('users').doc(user.uid).set(
+          profileData,
+          SetOptions(merge: true),
+        );
   }
 
   Future<void> changePassword({
@@ -123,7 +153,16 @@ class ProfileService {
       throw Exception('Mật khẩu mới phải có ít nhất 6 ký tự');
     }
 
-    await user.updatePassword(newPassword.trim());
+    try {
+      await user.updatePassword(newPassword.trim());
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception(
+          'Phiên đăng nhập đã cũ. Vui lòng đăng xuất, đăng nhập lại rồi đổi mật khẩu.',
+        );
+      }
+      throw Exception(e.message ?? 'Không đổi được mật khẩu');
+    }
   }
 
   Future<void> logout() async {

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:team_task_flutter/widgets/empty_task_state.dart';
 import 'package:team_task_flutter/widgets/task_card.dart';
@@ -31,7 +30,6 @@ class _TasksScreenState extends State<TasksScreen> {
   final TaskService _taskService = TaskService();
   final TextEditingController _searchController = TextEditingController();
 
-  List<String> _myGroupIds = [];
   String _selectedFilter = 'all';
   String _searchText = '';
 
@@ -44,37 +42,17 @@ class _TasksScreenState extends State<TasksScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _loadMyGroups();
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadMyGroups() async {
-    final ids = await _taskService.getMyGroupIds();
-    if (mounted) {
-      setState(() => _myGroupIds = ids);
-    }
-  }
-
-  bool _belongsToMe(TaskModel task, String currentUserId) {
-    return _myGroupIds.contains(task.groupId) ||
-        task.assignedTo == currentUserId ||
-        task.createdBy == currentUserId;
-  }
-
   List<TaskModel> _applyFilters(List<TaskModel> tasks) {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-
     final filtered = tasks.where((task) {
-      if (!_belongsToMe(task, uid)) return false;
+      if (_selectedFilter == 'overdue' && !task.isOverdue) {
+        return false;
+      }
 
-      if (_selectedFilter == 'overdue' && !task.isOverdue) return false;
       if (_selectedFilter != 'all' &&
           _selectedFilter != 'overdue' &&
           task.status != _selectedFilter) {
@@ -85,16 +63,19 @@ class _TasksScreenState extends State<TasksScreen> {
         final q = _searchText.toLowerCase();
         final matchesTitle = task.title.toLowerCase().contains(q);
         final matchesDesc = task.description.toLowerCase().contains(q);
-        if (!matchesTitle && !matchesDesc) return false;
+
+        if (!matchesTitle && !matchesDesc) {
+          return false;
+        }
       }
 
       return true;
     }).toList();
 
     filtered.sort((a, b) {
-      final aDue = a.dueDate ?? DateTime(2100);
-      final bDue = b.dueDate ?? DateTime(2100);
-      return aDue.compareTo(bDue);
+      final aDueDate = a.dueDate ?? DateTime(2100);
+      final bDueDate = b.dueDate ?? DateTime(2100);
+      return aDueDate.compareTo(bDueDate);
     });
 
     return filtered;
@@ -109,6 +90,8 @@ class _TasksScreenState extends State<TasksScreen> {
     );
 
     if (changed == true && mounted) {
+      setState(() {});
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -171,15 +154,33 @@ class _TasksScreenState extends State<TasksScreen> {
     AsyncSnapshot<List<TaskModel>> snapshot,
     List<TaskModel> tasks,
   ) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
+    if (snapshot.connectionState == ConnectionState.waiting &&
+        !snapshot.hasData) {
       return const Padding(
         padding: EdgeInsets.only(top: 40),
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
+    if (snapshot.hasError) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Text(
+          'Lỗi tải công việc: ${snapshot.error}',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: _bodyFont,
+            color: Colors.red,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
     if (tasks.isEmpty) {
-      return const EmptyTaskState();
+      return const EmptyTaskState(
+        message: 'Không có công việc phù hợp',
+      );
     }
 
     return Column(
@@ -200,11 +201,11 @@ class _TasksScreenState extends State<TasksScreen> {
       stream: _taskService.streamAllTasks(),
       builder: (context, snapshot) {
         final allTasks = snapshot.data ?? [];
-        final tasks = _applyFilters(allTasks);
+        final filteredTasks = _applyFilters(allTasks);
 
-        final total = tasks.length;
-        final doing = tasks.where((e) => e.status == 'doing').length;
-        final done = tasks.where((e) => e.status == 'done').length;
+        final total = allTasks.length;
+        final doing = allTasks.where((task) => task.status == 'doing').length;
+        final done = allTasks.where((task) => task.status == 'done').length;
 
         return Scaffold(
           appBar: AppBar(
@@ -222,7 +223,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => TaskStatisticsScreen(tasks: tasks),
+                      builder: (_) => TaskStatisticsScreen(tasks: allTasks),
                     ),
                   );
                 },
@@ -249,14 +250,18 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
           ),
           body: RefreshIndicator(
-            onRefresh: _loadMyGroups,
+            onRefresh: () async {
+              setState(() {});
+            },
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
               children: [
                 TaskSearchBar(
                   controller: _searchController,
                   onChanged: (value) {
-                    setState(() => _searchText = value.trim());
+                    setState(() {
+                      _searchText = value.trim();
+                    });
                   },
                 ),
                 const SizedBox(height: 14),
@@ -270,11 +275,13 @@ class _TasksScreenState extends State<TasksScreen> {
                   filters: _filters,
                   selectedFilter: _selectedFilter,
                   onSelected: (value) {
-                    setState(() => _selectedFilter = value);
+                    setState(() {
+                      _selectedFilter = value;
+                    });
                   },
                 ),
                 const SizedBox(height: 18),
-                _buildTaskList(snapshot, tasks),
+                _buildTaskList(snapshot, filteredTasks),
               ],
             ),
           ),

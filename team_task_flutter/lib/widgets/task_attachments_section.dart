@@ -7,6 +7,7 @@ class TaskAttachmentsSection extends StatelessWidget {
   final VoidCallback? onAddPressed;
   final Future<String> Function(String userId)? getUserName;
   final void Function(AttachmentModel attachment)? onDelete;
+  final bool Function(AttachmentModel attachment)? canDelete;
   final void Function(AttachmentModel attachment)? onTapAttachment;
 
   const TaskAttachmentsSection({
@@ -15,11 +16,24 @@ class TaskAttachmentsSection extends StatelessWidget {
     this.onAddPressed,
     this.getUserName,
     this.onDelete,
+    this.canDelete,
     this.onTapAttachment,
   });
 
   static const String _headlineFont = 'Manrope';
   static const String _bodyFont = 'Inter';
+
+  bool _isImageAttachment(AttachmentModel attachment) {
+    final type = attachment.fileType.toLowerCase();
+    final name = attachment.fileName.toLowerCase();
+
+    return type.contains('image') ||
+        name.endsWith('.png') ||
+        name.endsWith('.jpg') ||
+        name.endsWith('.jpeg') ||
+        name.endsWith('.webp') ||
+        name.endsWith('.gif');
+  }
 
   IconData _iconForFileType(String type, String fileName) {
     final lowerType = type.toLowerCase();
@@ -29,7 +43,8 @@ class TaskAttachmentsSection extends StatelessWidget {
         lowerName.endsWith('.png') ||
         lowerName.endsWith('.jpg') ||
         lowerName.endsWith('.jpeg') ||
-        lowerName.endsWith('.webp')) {
+        lowerName.endsWith('.webp') ||
+        lowerName.endsWith('.gif')) {
       return Icons.image_outlined;
     }
 
@@ -64,6 +79,7 @@ class TaskAttachmentsSection extends StatelessWidget {
     if (icon == Icons.description_outlined) return Colors.indigo.shade50;
     if (icon == Icons.table_chart_outlined) return Colors.green.shade50;
     if (icon == Icons.link_outlined) return Colors.orange.shade50;
+
     return Colors.grey.shade100;
   }
 
@@ -75,6 +91,7 @@ class TaskAttachmentsSection extends StatelessWidget {
     if (icon == Icons.description_outlined) return Colors.indigo;
     if (icon == Icons.table_chart_outlined) return Colors.green;
     if (icon == Icons.link_outlined) return Colors.orange;
+
     return Colors.grey;
   }
 
@@ -82,10 +99,40 @@ class TaskAttachmentsSection extends StatelessWidget {
     return '${time.day}/${time.month}/${time.year}';
   }
 
-  Widget _attachmentItem(AttachmentModel attachment) {
+  Widget _buildLeading(AttachmentModel attachment) {
     final bg = _iconBg(attachment.fileType, attachment.fileName);
     final color = _iconColor(attachment.fileType, attachment.fileName);
     final icon = _iconForFileType(attachment.fileType, attachment.fileName);
+
+    if (_isImageAttachment(attachment) && attachment.fileUrl.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.network(
+          attachment.fileUrl,
+          width: 44,
+          height: 44,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return CircleAvatar(
+              radius: 22,
+              backgroundColor: bg,
+              child: Icon(icon, color: color),
+            );
+          },
+        ),
+      );
+    }
+
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: bg,
+      child: Icon(icon, color: color),
+    );
+  }
+
+  Widget _attachmentItem(AttachmentModel attachment) {
+    final canShowDelete =
+        onDelete != null && (canDelete?.call(attachment) ?? true);
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
@@ -100,11 +147,7 @@ class TaskAttachmentsSection extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: bg,
-              child: Icon(icon, color: color),
-            ),
+            _buildLeading(attachment),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -134,8 +177,11 @@ class TaskAttachmentsSection extends StatelessWidget {
                       future: getUserName!(attachment.uploadedBy),
                       builder: (context, snapshot) {
                         final name = snapshot.data ?? 'Người dùng';
+
                         return Text(
                           'Tải lên bởi $name • ${_formatDate(attachment.uploadedAt)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: _bodyFont,
                             color: Colors.grey.shade600,
@@ -156,7 +202,7 @@ class TaskAttachmentsSection extends StatelessWidget {
                 ],
               ),
             ),
-            if (onDelete != null)
+            if (canShowDelete)
               IconButton(
                 onPressed: () => onDelete!(attachment),
                 icon: const Icon(Icons.delete_outline),

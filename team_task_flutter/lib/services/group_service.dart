@@ -174,6 +174,25 @@ class GroupService {
     await docRef.set(notification.toMap());
   }
 
+  Future<void> _finishRelatedJoinRequestNotifications({
+    required String groupId,
+    required String requesterUserId,
+    required String status,
+  }) async {
+    final snapshot = await _notifications
+        .where('groupId', isEqualTo: groupId)
+        .where('requesterUserId', isEqualTo: requesterUserId)
+        .where('type', isEqualTo: 'group_join_request')
+        .get();
+
+    for (final doc in snapshot.docs) {
+      await doc.reference.update({
+        'invitationStatus': status,
+        'isRead': true,
+      });
+    }
+  }
+
   Future<void> createGroup({
     required String groupName,
     required String description,
@@ -280,7 +299,7 @@ class GroupService {
   }
 
   Future<void> deleteGroup(String groupId) async {
-    final oldData = await _requireActiveGroupData(groupId);
+    await _requireActiveGroupData(groupId);
     await _requireManagePermission(groupId);
 
     final taskSnapshot = await _tasks.where('groupId', isEqualTo: groupId).get();
@@ -313,14 +332,6 @@ class GroupService {
     await _deleteDocs(memberSnapshot.docs);
     await _deleteDocs(groupLogSnapshot.docs);
     await _deleteDocs(groupNotificationSnapshot.docs);
-
-    await _addActivityLog(
-      taskId: null,
-      groupId: groupId,
-      action: 'delete_group_prepare',
-      oldValue: oldData.toString(),
-      newValue: 'delete_all_related_data',
-    );
 
     await _groups.doc(groupId).delete();
   }
@@ -694,8 +705,7 @@ class GroupService {
         taskId: null,
         groupId: group.groupId,
         title: 'Yêu cầu tham gia nhóm',
-        message:
-            '$requesterName muốn tham gia nhóm "${group.groupName}".',
+        message: '$requesterName muốn tham gia nhóm "${group.groupName}".',
         type: 'group_join_request',
         invitationStatus: 'pending',
         requesterUserId: user.uid,
@@ -853,10 +863,11 @@ class GroupService {
     final memberStatus = (memberData['status'] ?? '').toString();
 
     if (memberStatus != 'pending') {
-      await notificationDoc.reference.update({
-        'invitationStatus': memberStatus == 'active' ? 'accepted' : memberStatus,
-        'isRead': true,
-      });
+      await _finishRelatedJoinRequestNotifications(
+        groupId: groupId,
+        requesterUserId: requesterUserId,
+        status: memberStatus == 'active' ? 'accepted' : memberStatus,
+      );
       throw Exception('Yêu cầu này không còn ở trạng thái chờ');
     }
 
@@ -869,10 +880,11 @@ class GroupService {
         'respondedAt': FieldValue.serverTimestamp(),
       });
 
-      await notificationDoc.reference.update({
-        'invitationStatus': 'accepted',
-        'isRead': true,
-      });
+      await _finishRelatedJoinRequestNotifications(
+        groupId: groupId,
+        requesterUserId: requesterUserId,
+        status: 'accepted',
+      );
 
       await _createNotification(
         userId: requesterUserId,
@@ -897,10 +909,11 @@ class GroupService {
         'respondedAt': FieldValue.serverTimestamp(),
       });
 
-      await notificationDoc.reference.update({
-        'invitationStatus': 'declined',
-        'isRead': true,
-      });
+      await _finishRelatedJoinRequestNotifications(
+        groupId: groupId,
+        requesterUserId: requesterUserId,
+        status: 'declined',
+      );
 
       await _createNotification(
         userId: requesterUserId,
