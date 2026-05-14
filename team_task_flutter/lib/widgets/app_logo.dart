@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 
 class AppLogo extends StatelessWidget {
   final double size;
 
-  const AppLogo({
-    super.key,
-    this.size = 88,
-  });
+  const AppLogo({super.key, this.size = 88});
 
   @override
   Widget build(BuildContext context) {

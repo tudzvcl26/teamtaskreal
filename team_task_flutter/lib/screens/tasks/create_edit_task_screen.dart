@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../../models/task_model.dart';
 import '../../services/task_service.dart';
@@ -6,10 +7,7 @@ import '../../services/task_service.dart';
 class CreateEditTaskScreen extends StatefulWidget {
   final TaskModel? task;
 
-  const CreateEditTaskScreen({
-    super.key,
-    this.task,
-  });
+  const CreateEditTaskScreen({super.key, this.task});
 
   bool get isEdit => task != null;
 
@@ -192,7 +190,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          message,
+          message.tr(context),
           style: const TextStyle(fontFamily: _bodyFont),
         ),
       ),
@@ -265,10 +263,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
     }
   }
 
-  Widget _buildSectionCard({
-    required String label,
-    required Widget child,
-  }) {
+  Widget _buildSectionCard({required String label, required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -376,8 +371,9 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final useSingleColumn = constraints.maxWidth < 430;
-        final itemWidth =
-            useSingleColumn ? constraints.maxWidth : (constraints.maxWidth - 12) / 2;
+        final itemWidth = useSingleColumn
+            ? constraints.maxWidth
+            : (constraints.maxWidth - 12) / 2;
 
         return Wrap(
           spacing: 12,
@@ -466,7 +462,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
             controller: _titleController,
             style: const TextStyle(fontFamily: _bodyFont),
             decoration: InputDecoration(
-              labelText: 'Tiêu đề công việc',
+              labelText: 'Tiêu đề công việc'.tr(context),
               labelStyle: const TextStyle(fontFamily: _bodyFont),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -485,7 +481,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
             style: const TextStyle(fontFamily: _bodyFont),
             maxLines: 5,
             decoration: InputDecoration(
-              labelText: 'Mô tả',
+              labelText: 'Mô tả'.tr(context),
               labelStyle: const TextStyle(fontFamily: _bodyFont),
               alignLabelWithHint: true,
               border: OutlineInputBorder(
@@ -502,12 +498,9 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
     if (_groups.isEmpty && !widget.isEdit) {
       return _buildSectionCard(
         label: 'Nhóm',
-        child: const Text(
+        child: Text(
           'Bạn chưa có nhóm nào. Hãy tạo hoặc tham gia nhóm trước khi tạo công việc.',
-          style: TextStyle(
-            fontFamily: _bodyFont,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontFamily: _bodyFont, fontWeight: FontWeight.w600),
         ),
       );
     }
@@ -518,9 +511,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
         value: _selectedGroupId,
         isExpanded: true,
         decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -558,9 +549,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
         value: _selectedAssignedTo,
         isExpanded: true,
         decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -614,7 +603,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text(
+            title: Text(
               'Ngày bắt đầu',
               style: TextStyle(
                 fontFamily: _headlineFont,
@@ -645,7 +634,7 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
           const Divider(),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text(
+            title: Text(
               'Hạn chót',
               style: TextStyle(
                 fontFamily: _headlineFont,
@@ -727,8 +716,8 @@ class _CreateEditTaskScreenState extends State<CreateEditTaskScreen> {
             _isSaving
                 ? 'Đang lưu...'
                 : isEdit
-                    ? 'Lưu thay đổi'
-                    : 'Tạo công việc',
+                ? 'Lưu thay đổi'
+                : 'Tạo công việc',
             style: const TextStyle(
               fontFamily: _bodyFont,
               fontWeight: FontWeight.w700,

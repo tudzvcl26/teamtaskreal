@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 
 class OnboardingPageItem extends StatelessWidget {
@@ -48,15 +49,11 @@ class OnboardingPageItem extends StatelessWidget {
                         color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(28),
                       ),
-                      child: Icon(
-                        icon,
-                        size: 56,
-                        color: color,
-                      ),
+                      child: Icon(icon, size: 56, color: color),
                     ),
                     const SizedBox(height: 28),
                     Text(
-                      title,
+                      title.tr(context),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 28,

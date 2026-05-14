@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../../models/task_model.dart';
 import '../../models/task_statistics_data.dart';
@@ -6,10 +7,7 @@ import '../../models/task_statistics_data.dart';
 class TaskStatisticsScreen extends StatelessWidget {
   final List<TaskModel> tasks;
 
-  const TaskStatisticsScreen({
-    super.key,
-    required this.tasks,
-  });
+  const TaskStatisticsScreen({super.key, required this.tasks});
 
   Color _statusColor(String status) {
     switch (status) {
@@ -60,10 +58,7 @@ class TaskStatisticsScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -81,9 +76,7 @@ class TaskStatisticsScreen extends StatelessWidget {
     };
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thống kê / Tiến độ'),
-      ),
+      appBar: AppBar(title: Text('Thống kê / Tiến độ'.tr(context))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -119,8 +112,9 @@ class TaskStatisticsScreen extends StatelessWidget {
                     minHeight: 10,
                     value: stats.completionRate,
                     backgroundColor: Colors.white24,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.white,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -140,12 +134,24 @@ class TaskStatisticsScreen extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             childAspectRatio: 1.25,
             children: [
-              _statCard('Tổng công việc', '${stats.total}', Icons.task_alt,
-                  Colors.indigo),
-              _statCard('Quá hạn', '${stats.overdue}', Icons.warning_amber,
-                  Colors.red),
               _statCard(
-                  'Ưu tiên cao', '${stats.highPriority}', Icons.flag, Colors.red),
+                'Tổng công việc',
+                '${stats.total}',
+                Icons.task_alt,
+                Colors.indigo,
+              ),
+              _statCard(
+                'Quá hạn',
+                '${stats.overdue}',
+                Icons.warning_amber,
+                Colors.red,
+              ),
+              _statCard(
+                'Ưu tiên cao',
+                '${stats.highPriority}',
+                Icons.flag,
+                Colors.red,
+              ),
               _statCard('Đang làm', '${stats.doing}', Icons.loop, Colors.blue),
             ],
           ),
@@ -161,10 +167,7 @@ class TaskStatisticsScreen extends StatelessWidget {
               children: [
                 const Text(
                   'Phân bố theo trạng thái',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 16),
                 ...byStatus.entries.map((entry) {
@@ -187,8 +190,9 @@ class TaskStatisticsScreen extends StatelessWidget {
                             ),
                             Text(
                               '${entry.value}',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ],
                         ),
@@ -223,10 +227,7 @@ class TaskStatisticsScreen extends StatelessWidget {
               children: [
                 const Text(
                   'Phân bố theo ưu tiên',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 14),
                 ListTile(
@@ -235,7 +236,7 @@ class TaskStatisticsScreen extends StatelessWidget {
                     backgroundColor: Color(0xFFFFEBEE),
                     child: Icon(Icons.flag, color: Colors.red),
                   ),
-                  title: const Text('Ưu tiên cao'),
+                  title: Text('Ưu tiên cao'.tr(context)),
                   trailing: Text('${stats.highPriority}'),
                 ),
                 ListTile(
@@ -244,7 +245,7 @@ class TaskStatisticsScreen extends StatelessWidget {
                     backgroundColor: Color(0xFFFFF8E1),
                     child: Icon(Icons.flag, color: Colors.orange),
                   ),
-                  title: const Text('Ưu tiên trung bình'),
+                  title: Text('Ưu tiên trung bình'.tr(context)),
                   trailing: Text('${stats.mediumPriority}'),
                 ),
                 ListTile(
@@ -253,7 +254,7 @@ class TaskStatisticsScreen extends StatelessWidget {
                     backgroundColor: Color(0xFFE8F5E9),
                     child: Icon(Icons.flag, color: Colors.green),
                   ),
-                  title: const Text('Ưu tiên thấp'),
+                  title: Text('Ưu tiên thấp'.tr(context)),
                   trailing: Text('${stats.lowPriority}'),
                 ),
               ],

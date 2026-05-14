@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/models/group_member_model.dart';
 import 'package:team_task_flutter/services/group_service.dart';
@@ -6,10 +7,7 @@ import 'package:team_task_flutter/services/group_service.dart';
 class AddMemberScreen extends StatefulWidget {
   final String groupId;
 
-  const AddMemberScreen({
-    super.key,
-    required this.groupId,
-  });
+  const AddMemberScreen({super.key, required this.groupId});
 
   @override
   State<AddMemberScreen> createState() => _AddMemberScreenState();
@@ -36,9 +34,9 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> refreshMembers() async {
@@ -120,7 +118,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('Thêm thành viên'),
+          title: Text('Thêm thành viên'.tr(context)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, hasChanged),
@@ -173,8 +171,8 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                       TextField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          hintText: 'Nhập email',
+                        decoration: InputDecoration(
+                          hintText: 'Nhập email'.tr(context),
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
                       ),
@@ -187,7 +185,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                             : ElevatedButton.icon(
                                 onPressed: handleAddMember,
                                 icon: const Icon(Icons.person_add_alt_1),
-                                label: const Text('Gửi lời mời'),
+                                label: Text('Gửi lời mời'.tr(context)),
                               ),
                       ),
                     ],
@@ -225,7 +223,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Chưa có thành viên nào',
                           style: TextStyle(color: AppColors.textSecondary),
                         ),

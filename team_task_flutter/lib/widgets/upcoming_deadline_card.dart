@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class UpcomingDeadlineCard extends StatelessWidget {
   final String dayText;
@@ -46,7 +47,7 @@ class UpcomingDeadlineCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                title,
+                title.tr(context),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -75,7 +76,7 @@ class UpcomingDeadlineCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Kiểm tra ngay',
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),

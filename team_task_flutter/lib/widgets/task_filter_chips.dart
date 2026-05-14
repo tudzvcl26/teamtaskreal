@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class TaskFilterChips extends StatelessWidget {
   final List<Map<String, String>> filters;
@@ -30,7 +31,7 @@ class TaskFilterChips extends StatelessWidget {
 
           return ChoiceChip(
             label: Text(
-              label,
+              label.tr(context),
               style: const TextStyle(
                 fontFamily: _bodyFont,
                 fontWeight: FontWeight.w600,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/models/notification_model.dart';
 import 'package:team_task_flutter/screens/tasks/task_detail_screen.dart';
 import 'package:team_task_flutter/services/group_service.dart';
@@ -26,14 +27,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (status == 'accepted') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bạn đã chấp nhận lời mời này rồi')),
+        SnackBar(content: Text('Bạn đã chấp nhận lời mời này rồi'.tr(context))),
       );
       return;
     }
 
     if (status == 'declined') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bạn đã từ chối lời mời này rồi')),
+        SnackBar(content: Text('Bạn đã từ chối lời mời này rồi'.tr(context))),
       );
       return;
     }
@@ -41,16 +42,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final action = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Lời mời tham gia nhóm'),
+        title: Text('Lời mời tham gia nhóm'.tr(context)),
         content: Text(item.message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'decline'),
-            child: const Text('Từ chối'),
+            child: Text('Từ chối'.tr(context)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, 'accept'),
-            child: const Text('Chấp nhận'),
+            child: Text('Chấp nhận'.tr(context)),
           ),
         ],
       ),
@@ -78,9 +79,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-        ),
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
       );
     }
   }
@@ -90,14 +89,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     if (status == 'accepted') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yêu cầu này đã được chấp nhận rồi')),
+        SnackBar(
+          content: Text('Yêu cầu này đã được chấp nhận rồi'.tr(context)),
+        ),
       );
       return;
     }
 
     if (status == 'declined') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Yêu cầu này đã bị từ chối rồi')),
+        SnackBar(content: Text('Yêu cầu này đã bị từ chối rồi'.tr(context))),
       );
       return;
     }
@@ -105,16 +106,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final action = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Yêu cầu tham gia nhóm'),
+        title: Text('Yêu cầu tham gia nhóm'.tr(context)),
         content: Text(item.message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'decline'),
-            child: const Text('Từ chối'),
+            child: Text('Từ chối'.tr(context)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, 'accept'),
-            child: const Text('Chấp nhận'),
+            child: Text('Chấp nhận'.tr(context)),
           ),
         ],
       ),
@@ -142,9 +143,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-        ),
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
       );
     }
   }
@@ -176,9 +175,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(item.message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(item.message)));
   }
 
   @override
@@ -187,7 +186,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       stream: _taskService.streamMyNotifications(),
       builder: (context, snapshot) {
         final hasFreshData = snapshot.hasData;
-        final notifications = hasFreshData ? snapshot.data! : _lastNotifications;
+        final notifications = hasFreshData
+            ? snapshot.data!
+            : _lastNotifications;
 
         if (hasFreshData) {
           _lastNotifications = snapshot.data!;
@@ -196,11 +197,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final unreadCount = notifications.where((e) => !e.isRead).length;
         final isLoadingFirstTime =
             snapshot.connectionState == ConnectionState.waiting &&
-                _lastNotifications.isEmpty;
+            _lastNotifications.isEmpty;
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(
+            title: Text(
               'Thông báo',
               style: TextStyle(
                 fontFamily: _headlineFont,
@@ -213,7 +214,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   onPressed: () async {
                     await _taskService.markAllNotificationsAsRead();
                   },
-                  child: const Text(
+                  child: Text(
                     'Đọc hết',
                     style: TextStyle(
                       fontFamily: _bodyFont,

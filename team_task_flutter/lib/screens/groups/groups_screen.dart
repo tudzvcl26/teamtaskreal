@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/core/constants/group_style_data.dart';
 import 'package:team_task_flutter/models/group_model.dart';
@@ -10,10 +11,7 @@ import 'package:team_task_flutter/services/group_service.dart';
 class GroupsScreen extends StatefulWidget {
   final VoidCallback? onOpenProfileTab;
 
-  const GroupsScreen({
-    super.key,
-    this.onOpenProfileTab,
-  });
+  const GroupsScreen({super.key, this.onOpenProfileTab});
 
   @override
   State<GroupsScreen> createState() => _GroupsScreenState();
@@ -34,9 +32,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
   Future<void> openCreateGroup() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const CreateEditGroupScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const CreateEditGroupScreen()),
     );
 
     if (result == true && mounted) {
@@ -47,9 +43,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
   Future<void> openJoinByCode() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const JoinGroupByCodeScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const JoinGroupByCodeScreen()),
     );
 
     if (result == true && mounted) {
@@ -168,7 +162,9 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                 });
                               },
                               decoration: InputDecoration(
-                                hintText: 'Tìm kiếm nhóm...',
+                                hintText: 'Tìm kiếm nhóm...'
+                                    .tr(context)
+                                    .tr(context),
                                 prefixIcon: const Icon(Icons.search),
                                 filled: true,
                                 fillColor: const Color(0xFFF1F3F5),
@@ -293,17 +289,22 @@ class _GroupsScreenState extends State<GroupsScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
                         sliver: SliverList.separated(
                           itemCount: filteredGroups.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 14),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             final group = filteredGroups[index];
-                            final bgColor =
-                                GroupStyleData.bgColor(group.groupColor);
-                            final textColor =
-                                GroupStyleData.textColor(group.groupColor);
-                            final iconData =
-                                GroupStyleData.iconData(group.groupIcon);
+                            final bgColor = GroupStyleData.bgColor(
+                              group.groupColor,
+                            );
+                            final textColor = GroupStyleData.textColor(
+                              group.groupColor,
+                            );
+                            final iconData = GroupStyleData.iconData(
+                              group.groupIcon,
+                            );
 
-                            final stats = statsMap[group.groupId] ??
+                            final stats =
+                                statsMap[group.groupId] ??
                                 {
                                   'memberCount': 0,
                                   'taskCount': 0,
@@ -337,10 +338,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                         color: bgColor,
                                         borderRadius: BorderRadius.circular(18),
                                       ),
-                                      child: Icon(
-                                        iconData,
-                                        color: textColor,
-                                      ),
+                                      child: Icon(iconData, color: textColor),
                                     ),
                                     const SizedBox(width: 14),
                                     Expanded(
@@ -378,7 +376,8 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                             children: [
                                               _StatChip(
                                                 icon: Icons.people_alt_outlined,
-                                                label: '$memberCount thành viên',
+                                                label:
+                                                    '$memberCount thành viên',
                                               ),
                                               _StatChip(
                                                 icon: Icons.task_alt_outlined,
@@ -549,10 +548,7 @@ class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _StatChip({
-    required this.icon,
-    required this.label,
-  });
+  const _StatChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {

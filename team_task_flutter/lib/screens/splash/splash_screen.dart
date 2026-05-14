@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/screens/main/main_navigation_screen.dart';
 import 'package:team_task_flutter/screens/onboarding/onboarding_screen.dart';
@@ -27,8 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              user != null ? const MainNavigationScreen() : const OnboardingScreen(),
+          builder: (_) => user != null
+              ? const MainNavigationScreen()
+              : const OnboardingScreen(),
         ),
       );
     });
@@ -42,10 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFF9F9F9),
-              Color(0xFFE8EAF6),
-            ],
+            colors: [Color(0xFFF9F9F9), Color(0xFFE8EAF6)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -66,10 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 8),
             const Text(
               'Quản lý nhóm thông minh hơn',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 40),
             const CircularProgressIndicator(),

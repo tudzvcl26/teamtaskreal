@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 
 class DashboardStatCard extends StatelessWidget {
@@ -57,7 +58,7 @@ class DashboardStatCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            label.toUpperCase(),
+            label.tr(context).toUpperCase(),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,

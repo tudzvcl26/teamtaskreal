@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/screens/auth/register_screen.dart';
 import 'package:team_task_flutter/screens/home/home_dashboard_screen.dart';
@@ -32,9 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> handleLogin() async {
@@ -51,10 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         isLoading = true;
       });
 
-      await authService.login(
-        email: email,
-        password: password,
-      );
+      await authService.login(email: email, password: password);
 
       if (!mounted) return;
 
@@ -145,14 +143,14 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 36),
               CustomTextField(
                 controller: emailController,
-                hintText: 'Nhập email',
+                hintText: 'Nhập email'.tr(context),
                 prefixIcon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: passwordController,
-                hintText: 'Nhập mật khẩu',
+                hintText: 'Nhập mật khẩu'.tr(context),
                 prefixIcon: Icons.lock_outline,
                 obscureText: true,
               ),
@@ -161,14 +159,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {},
-                  child: const Text('Quên mật khẩu?'),
+                  child: Text('Quên mật khẩu?'.tr(context)),
                 ),
               ),
               const SizedBox(height: 12),
               isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : PrimaryButton(
-                      text: 'Đăng nhập',
+                      text: 'Đăng nhập'.tr(context),
                       onPressed: handleLogin,
                     ),
               const SizedBox(height: 20),
@@ -181,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: goToRegister,
-                    child: const Text('Đăng ký'),
+                    child: Text('Đăng ký'.tr(context)),
                   ),
                 ],
               ),

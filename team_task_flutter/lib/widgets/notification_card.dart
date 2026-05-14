@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../models/notification_model.dart';
 
@@ -6,11 +7,7 @@ class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback? onTap;
 
-  const NotificationCard({
-    super.key,
-    required this.notification,
-    this.onTap,
-  });
+  const NotificationCard({super.key, required this.notification, this.onTap});
 
   static const String _headlineFont = 'Manrope';
   static const String _bodyFont = 'Inter';
@@ -91,8 +88,9 @@ class NotificationCard extends StatelessWidget {
           color: notification.isRead ? Colors.white : color.withOpacity(0.06),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color:
-                notification.isRead ? Colors.grey.shade200 : color.withOpacity(0.22),
+            color: notification.isRead
+                ? Colors.grey.shade200
+                : color.withOpacity(0.22),
           ),
         ),
         child: Row(
@@ -134,10 +132,7 @@ class NotificationCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     notification.message,
-                    style: const TextStyle(
-                      fontFamily: _bodyFont,
-                      height: 1.4,
-                    ),
+                    style: const TextStyle(fontFamily: _bodyFont, height: 1.4),
                   ),
                   if (notification.type == 'group_invite' ||
                       notification.type == 'group_join_request' ||

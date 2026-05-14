@@ -1,0 +1,26 @@
+{
+  "@@locale": "ja",
+  "appTitle": "Team Task",
+  "profileLoadError": "プロフィールを読み込めません",
+  "retry": "再試行",
+  "noData": "データがありません",
+  "activeTasks": "進行中のタスク",
+  "completedTasks": "完了済み",
+  "generalSettings": "一般設定",
+  "editProfile": "プロフィールを編集",
+  "changePassword": "パスワードを変更",
+  "darkMode": "ダークモード",
+  "language": "言語",
+  "selectLanguage": "言語を選択",
+  "selectedLanguage": "{language}を選択しました",
+  "@selectedLanguage": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "logout": "ログアウト",
+  "appVersion": "Team Task v2.4.0 • Flow 向けに構築",
+  "vietnamese": "Tiếng Việt",
+  "english": "English",
+  "japanese": "日本語"
+}

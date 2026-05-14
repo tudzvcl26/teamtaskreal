@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class EmptyTaskState extends StatelessWidget {
   final String message;
 
-  const EmptyTaskState({
-    super.key,
-    this.message = 'Chưa có công việc phù hợp',
-  });
+  const EmptyTaskState({super.key, this.message = 'Chưa có công việc phù hợp'});
 
   static const String _headlineFont = 'Manrope';
 
@@ -23,7 +21,7 @@ class EmptyTaskState extends StatelessWidget {
           const Icon(Icons.assignment_outlined, size: 48),
           const SizedBox(height: 12),
           Text(
-            message,
+            message.tr(context),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontFamily: _headlineFont,

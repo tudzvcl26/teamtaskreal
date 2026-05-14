@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/screens/auth/login_screen.dart';
 import 'package:team_task_flutter/widgets/onboarding_indicator.dart';
@@ -87,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   TextButton(
                     onPressed: goToLogin,
-                    child: const Text('Bỏ qua'),
+                    child: Text('Bỏ qua'.tr(context)),
                   ),
                 ],
               ),

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/models/task_model.dart';
 
 class TaskCard extends StatelessWidget {
   final TaskModel task;
   final VoidCallback? onTap;
 
-  const TaskCard({
-    super.key,
-    required this.task,
-    this.onTap,
-  });
+  const TaskCard({super.key, required this.task, this.onTap});
 
   static const String _headlineFont = 'Manrope';
   static const String _bodyFont = 'Inter';
@@ -92,8 +89,10 @@ class TaskCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _statusColor(task.status).withOpacity(0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -109,8 +108,10 @@ class TaskCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _priorityColor(task.priority).withOpacity(0.12),
                     borderRadius: BorderRadius.circular(999),
@@ -127,8 +128,10 @@ class TaskCard extends StatelessWidget {
                 ),
                 if (task.isOverdue)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red.shade100,
                       borderRadius: BorderRadius.circular(999),
