@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
+import 'package:team_task_flutter/core/localization/locale_controller.dart';
 import 'package:team_task_flutter/core/theme/theme_controller.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/screens/auth/login_screen.dart';
 import 'package:team_task_flutter/screens/profile/change_password_screen.dart';
 import 'package:team_task_flutter/screens/profile/edit_profile_screen.dart';
@@ -18,14 +22,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   late Future<ProfileData> profileFuture;
 
-  String selectedLanguage = 'Tiếng Việt';
-
-  final List<String> languages = const [
-    'Tiếng Việt',
-    'English',
-    '日本語',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -41,9 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> openEditProfile(ProfileData profile) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => EditProfileScreen(profile: profile),
-      ),
+      MaterialPageRoute(builder: (_) => EditProfileScreen(profile: profile)),
     );
 
     if (result == true && mounted) {
@@ -54,9 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> openChangePassword() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ChangePasswordScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
     );
 
     if (result == true && mounted) {
@@ -65,15 +57,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> openLanguagePicker() async {
+    final l10n = AppLocalizations.of(context)!;
+    final languages = [
+      _LanguageOption(locale: const Locale('vi'), name: l10n.vietnamese),
+      _LanguageOption(locale: const Locale('en'), name: l10n.english),
+      _LanguageOption(locale: const Locale('ja'), name: l10n.japanese),
+    ];
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
+        final selectedLocale = LocaleController.locale.value;
+
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
@@ -89,11 +88,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Chọn ngôn ngữ',
-                    style: TextStyle(
+                    l10n.selectLanguage,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: AppColors.primary,
@@ -101,65 +100,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                ...languages.map(
-                  (language) {
-                    final isSelected = selectedLanguage == language;
+                ...languages.map((language) {
+                  final isSelected =
+                      selectedLocale.languageCode ==
+                      language.locale.languageCode;
 
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        setState(() {
-                          selectedLanguage = language;
-                        });
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await LocaleController.setLocale(language.locale);
 
-                        Navigator.pop(context);
+                      if (!mounted) return;
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Đã chọn $language'),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
+                      final message = AppLocalizations(
+                        language.locale,
+                      ).selectedLanguage(language.name);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(message.tr(context))),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFFE0E7FF)
+                            : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFE0E7FF)
-                              : const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.transparent,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                language,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                            if (isSelected)
-                              const Icon(
-                                Icons.check_circle,
-                                color: AppColors.primary,
-                              ),
-                          ],
+                              ? AppColors.primary
+                              : Colors.transparent,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              language.name,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(
+                              Icons.check_circle,
+                              color: AppColors.primary,
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -198,9 +197,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildAvatar(ProfileData profile) {
     if (profile.avatar.isNotEmpty) {
-      return Text(
-        profile.avatar,
-        style: const TextStyle(fontSize: 34),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: Image.file(
+          File(profile.avatar),
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover,
+        ),
       );
     }
 
@@ -277,6 +281,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -294,9 +300,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Không tải được hồ sơ',
-                        style: TextStyle(
+                      Text(
+                        l10n.profileLoadError,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: AppColors.primary,
@@ -310,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: refreshProfile,
-                        child: const Text('Thử lại'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -319,7 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
 
             if (!snapshot.hasData) {
-              return const Center(child: Text('Không có dữ liệu'));
+              return Center(child: Text(l10n.noData));
             }
 
             final profile = snapshot.data!;
@@ -346,9 +352,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 24),
                         _buildLogoutButton(),
                         const SizedBox(height: 26),
-                        const Text(
-                          'Team Task v2.4.0 • Xây dựng cho Flow',
-                          style: TextStyle(
+                        Text(
+                          l10n.appVersion,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),
@@ -413,9 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: const Color(0xFFE0E7FF),
                   borderRadius: BorderRadius.circular(26),
                 ),
-                child: Center(
-                  child: buildAvatar(profile),
-                ),
+                child: Center(child: buildAvatar(profile)),
               ),
             ),
             Positioned(
@@ -427,16 +431,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(21),
-                  border: Border.all(
-                    color: AppColors.background,
-                    width: 4,
-                  ),
+                  border: Border.all(color: AppColors.background, width: 4),
                 ),
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.edit, size: 18, color: Colors.white),
               ),
             ),
           ],
@@ -464,6 +461,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStats(ProfileData profile) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         Expanded(
@@ -484,10 +483,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'CÔNG VIỆC ĐANG LÀM',
+                Text(
+                  l10n.activeTasks,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
@@ -517,10 +516,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'ĐÃ HOÀN THÀNH',
+                Text(
+                  l10n.completedTasks,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
@@ -536,14 +535,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSettings(ProfileData profile, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
+    final selectedLanguage = _languageName(l10n, LocaleController.locale.value);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
-            'CÀI ĐẶT CHUNG',
-            style: TextStyle(
+            l10n.generalSettings,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
@@ -554,13 +556,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 14),
         buildMenuButton(
           icon: Icons.person_outline,
-          title: 'Chỉnh sửa hồ sơ',
+          title: l10n.editProfile,
           onTap: () => openEditProfile(profile),
         ),
         const SizedBox(height: 10),
         buildMenuButton(
           icon: Icons.lock_outline,
-          title: 'Đổi mật khẩu',
+          title: l10n.changePassword,
           onTap: openChangePassword,
           iconBg: const Color(0xFFF3F4F6),
           iconColor: AppColors.textSecondary,
@@ -588,10 +590,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Chế độ tối',
-                  style: TextStyle(
+                  l10n.darkMode,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
@@ -610,7 +612,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 10),
         buildMenuButton(
           icon: Icons.language,
-          title: 'Ngôn ngữ',
+          title: l10n.language,
           trailingText: selectedLanguage,
           iconBg: const Color(0xFFF3F4F6),
           iconColor: AppColors.textSecondary,
@@ -621,6 +623,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildLogoutButton() {
+    final l10n = AppLocalizations.of(context)!;
+
     return InkWell(
       onTap: handleLogout,
       borderRadius: BorderRadius.circular(20),
@@ -640,15 +644,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: const Color(0xFFFFCDD2),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.logout,
-                color: Colors.red,
-              ),
+              child: const Icon(Icons.logout, color: Colors.red),
             ),
             const SizedBox(width: 14),
-            const Text(
-              'Đăng xuất',
-              style: TextStyle(
+            Text(
+              l10n.logout,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
                 color: Colors.red,
@@ -659,4 +660,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  String _languageName(AppLocalizations l10n, Locale locale) {
+    switch (locale.languageCode) {
+      case 'en':
+        return l10n.english;
+      case 'ja':
+        return l10n.japanese;
+      case 'vi':
+      default:
+        return l10n.vietnamese;
+    }
+  }
+}
+
+class _LanguageOption {
+  const _LanguageOption({required this.locale, required this.name});
+
+  final Locale locale;
+  final String name;
 }

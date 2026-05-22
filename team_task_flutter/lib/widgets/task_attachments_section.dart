@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../models/attachment_model.dart';
 
@@ -104,7 +105,8 @@ class TaskAttachmentsSection extends StatelessWidget {
     final color = _iconColor(attachment.fileType, attachment.fileName);
     final icon = _iconForFileType(attachment.fileType, attachment.fileName);
 
-    if (_isImageAttachment(attachment) && attachment.fileUrl.startsWith('http')) {
+    if (_isImageAttachment(attachment) &&
+        attachment.fileUrl.startsWith('http')) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(14),
         child: Image.network(
@@ -136,7 +138,9 @@ class TaskAttachmentsSection extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: onTapAttachment == null ? null : () => onTapAttachment!(attachment),
+      onTap: onTapAttachment == null
+          ? null
+          : () => onTapAttachment!(attachment),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
@@ -240,7 +244,7 @@ class TaskAttachmentsSection extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onAddPressed,
                   icon: const Icon(Icons.add),
-                  label: const Text(
+                  label: Text(
                     'Thêm',
                     style: TextStyle(
                       fontFamily: _bodyFont,
@@ -260,9 +264,7 @@ class TaskAttachmentsSection extends StatelessWidget {
               ),
             )
           else
-            Column(
-              children: attachments.map(_attachmentItem).toList(),
-            ),
+            Column(children: attachments.map(_attachmentItem).toList()),
         ],
       ),
     );

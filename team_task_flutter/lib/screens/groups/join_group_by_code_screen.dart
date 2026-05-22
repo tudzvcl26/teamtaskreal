@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/models/group_model.dart';
 import 'package:team_task_flutter/services/group_service.dart';
@@ -25,9 +26,9 @@ class _JoinGroupByCodeScreenState extends State<JoinGroupByCodeScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> searchGroup() async {
@@ -93,9 +94,7 @@ class _JoinGroupByCodeScreenState extends State<JoinGroupByCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Tham gia nhóm bằng mã'),
-      ),
+      appBar: AppBar(title: Text('Tham gia nhóm bằng mã'.tr(context))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         child: Column(
@@ -130,8 +129,8 @@ class _JoinGroupByCodeScreenState extends State<JoinGroupByCodeScreen> {
                   TextField(
                     controller: codeController,
                     textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      hintText: 'Nhập mã nhóm',
+                    decoration: InputDecoration(
+                      hintText: 'Nhập mã nhóm'.tr(context),
                       prefixIcon: Icon(Icons.key_rounded),
                     ),
                   ),
@@ -144,7 +143,7 @@ class _JoinGroupByCodeScreenState extends State<JoinGroupByCodeScreen> {
                         : ElevatedButton.icon(
                             onPressed: searchGroup,
                             icon: const Icon(Icons.search),
-                            label: const Text('Tìm nhóm'),
+                            label: Text('Tìm nhóm'.tr(context)),
                           ),
                   ),
                 ],
@@ -199,7 +198,7 @@ class _JoinGroupByCodeScreenState extends State<JoinGroupByCodeScreen> {
                           : ElevatedButton.icon(
                               onPressed: submitRequest,
                               icon: const Icon(Icons.send_rounded),
-                              label: const Text('Gửi yêu cầu tham gia'),
+                              label: Text('Gửi yêu cầu tham gia'.tr(context)),
                             ),
                     ),
                   ],

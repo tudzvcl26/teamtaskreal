@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/core/constants/group_style_data.dart';
@@ -11,10 +12,7 @@ import 'package:team_task_flutter/services/group_service.dart';
 class GroupDetailScreen extends StatefulWidget {
   final String groupId;
 
-  const GroupDetailScreen({
-    super.key,
-    required this.groupId,
-  });
+  const GroupDetailScreen({super.key, required this.groupId});
 
   @override
   State<GroupDetailScreen> createState() => _GroupDetailScreenState();
@@ -58,9 +56,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   Future<void> openEditGroup(GroupModel group) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CreateEditGroupScreen(group: group),
-      ),
+      MaterialPageRoute(builder: (_) => CreateEditGroupScreen(group: group)),
     );
 
     if (result == true && mounted) {
@@ -84,9 +80,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   Future<void> copyInviteCode(String code) async {
     await Clipboard.setData(ClipboardData(text: code));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã sao chép mã mời')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Đã sao chép mã mời'.tr(context))));
   }
 
   void showError(Object e) {
@@ -100,9 +96,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     try {
       await groupService.archiveGroup(groupId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã lưu trữ nhóm')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Đã lưu trữ nhóm'.tr(context))));
       Navigator.pop(context, true);
     } catch (e) {
       showError(e);
@@ -113,9 +109,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     try {
       await groupService.deleteGroup(groupId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xóa nhóm')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Đã xóa nhóm'.tr(context))));
       Navigator.pop(context, true);
     } catch (e) {
       showError(e);
@@ -126,16 +122,16 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Lưu trữ nhóm'),
+        title: Text('Lưu trữ nhóm'.tr(context)),
         content: Text('Bạn có muốn lưu trữ nhóm "${group.groupName}" không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'.tr(context)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Lưu trữ'),
+            child: Text('Lưu trữ'.tr(context)),
           ),
         ],
       ),
@@ -150,14 +146,14 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Xóa nhóm'),
+        title: Text('Xóa nhóm'.tr(context)),
         content: Text(
           'Bạn có chắc muốn xóa nhóm "${group.groupName}" không?\nThao tác này sẽ xóa luôn task, comment, file đính kèm, thông báo và lịch sử liên quan.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'.tr(context)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -165,7 +161,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Xóa'),
+            child: Text('Xóa'.tr(context)),
           ),
         ],
       ),
@@ -229,12 +225,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
           future: _groupDataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             }
 
             if (snapshot.hasError || !snapshot.hasData) {
-              return const Center(
-                child: Text('Không tải được thông tin nhóm'),
+              return Center(
+                child: Text('Không tải được thông tin nhóm'.tr(context)),
               );
             }
 
@@ -246,8 +242,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
             final myRole = (snapshot.data!['myRole'] ?? '').toString();
             final canManage = snapshot.data!['canManage'] == true;
 
-            final progress =
-                taskCount == 0 ? 0.0 : (doneTaskCount / taskCount).clamp(0.0, 1.0);
+            final progress = taskCount == 0
+                ? 0.0
+                : (doneTaskCount / taskCount).clamp(0.0, 1.0);
 
             final bgColor = GroupStyleData.bgColor(group.groupColor);
             final textColor = GroupStyleData.textColor(group.groupColor);
@@ -378,7 +375,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF3F4F6),
-                                        borderRadius: BorderRadius.circular(999),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
                                       ),
                                       child: Text(
                                         myRole.isEmpty ? 'member' : myRole,
@@ -397,11 +396,14 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.orange.withOpacity(0.12),
-                                          borderRadius:
-                                              BorderRadius.circular(999),
+                                          color: Colors.orange.withOpacity(
+                                            0.12,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            999,
+                                          ),
                                         ),
-                                        child: const Text(
+                                        child: Text(
                                           'Đã lưu trữ',
                                           style: TextStyle(
                                             fontSize: 12,
@@ -635,7 +637,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                               child: ElevatedButton.icon(
                                 onPressed: openAddMember,
                                 icon: const Icon(Icons.person_add_alt_1),
-                                label: const Text('Mời thành viên'),
+                                label: Text('Mời thành viên'.tr(context)),
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -645,7 +647,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                               child: OutlinedButton.icon(
                                 onPressed: () => openEditGroup(group),
                                 icon: const Icon(Icons.edit_outlined),
-                                label: const Text('Chỉnh sửa nhóm'),
+                                label: Text('Chỉnh sửa nhóm'.tr(context)),
                               ),
                             ),
                             const SizedBox(height: 18),
@@ -685,7 +687,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                           ? null
                                           : () => confirmArchive(group),
                                       icon: const Icon(Icons.archive_outlined),
-                                      label: const Text('Lưu trữ nhóm'),
+                                      label: Text('Lưu trữ nhóm'.tr(context)),
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -699,7 +701,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                         foregroundColor: Colors.white,
                                       ),
                                       icon: const Icon(Icons.delete_outline),
-                                      label: const Text('Xóa nhóm'),
+                                      label: Text('Xóa nhóm'.tr(context)),
                                     ),
                                   ),
                                 ],

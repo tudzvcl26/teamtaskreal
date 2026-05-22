@@ -106,8 +106,9 @@ class TaskService {
   }) async {
     if (groupId.isEmpty || userId.isEmpty) return false;
 
-    final memberDoc =
-        await _groupMembers.doc(_memberDocId(groupId, userId)).get();
+    final memberDoc = await _groupMembers
+        .doc(_memberDocId(groupId, userId))
+        .get();
     final data = memberDoc.data();
 
     return memberDoc.exists &&
@@ -121,10 +122,7 @@ class TaskService {
   }) async {
     if (assignedTo == null || assignedTo.isEmpty) return;
 
-    final ok = await _isActiveMember(
-      groupId: groupId,
-      userId: assignedTo,
-    );
+    final ok = await _isActiveMember(groupId: groupId, userId: assignedTo);
 
     if (!ok) {
       throw Exception('Người được giao không thuộc nhóm này');
@@ -193,7 +191,8 @@ class TaskService {
 
     final controller = StreamController<List<TaskModel>>();
     StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? memberSub;
-    final taskSubs = <StreamSubscription<QuerySnapshot<Map<String, dynamic>>>>[];
+    final taskSubs =
+        <StreamSubscription<QuerySnapshot<Map<String, dynamic>>>>[];
     final chunkTaskMaps = <int, Map<String, TaskModel>>{};
 
     void emitTasks() {
@@ -229,10 +228,9 @@ class TaskService {
       for (int i = 0; i < chunks.length; i++) {
         final chunk = chunks[i];
 
-        final sub = _tasks
-            .where('groupId', whereIn: chunk)
-            .snapshots()
-            .listen((snapshot) {
+        final sub = _tasks.where('groupId', whereIn: chunk).snapshots().listen((
+          snapshot,
+        ) {
           chunkTaskMaps[i] = {
             for (final doc in snapshot.docs)
               doc.id: TaskModel.fromMap(doc.data(), doc.id),
@@ -251,30 +249,30 @@ class TaskService {
           .where('status', isEqualTo: 'active')
           .snapshots()
           .listen((memberSnapshot) async {
-        try {
-          final rawIds = memberSnapshot.docs
-              .map((doc) => (doc.data()['groupId'] ?? '').toString())
-              .where((id) => id.isNotEmpty)
-              .toSet()
-              .toList();
+            try {
+              final rawIds = memberSnapshot.docs
+                  .map((doc) => (doc.data()['groupId'] ?? '').toString())
+                  .where((id) => id.isNotEmpty)
+                  .toSet()
+                  .toList();
 
-          final validIds = <String>[];
+              final validIds = <String>[];
 
-          for (final groupId in rawIds) {
-            final groupDoc = await _groups.doc(groupId).get();
-            final groupData = groupDoc.data();
+              for (final groupId in rawIds) {
+                final groupDoc = await _groups.doc(groupId).get();
+                final groupData = groupDoc.data();
 
-            if (!groupDoc.exists || groupData == null) continue;
-            if ((groupData['isArchived'] ?? false) == true) continue;
+                if (!groupDoc.exists || groupData == null) continue;
+                if ((groupData['isArchived'] ?? false) == true) continue;
 
-            validIds.add(groupId);
-          }
+                validIds.add(groupId);
+              }
 
-          await resetTaskListeners(validIds);
-        } catch (e) {
-          if (!controller.isClosed) controller.addError(e);
-        }
-      }, onError: controller.addError);
+              await resetTaskListeners(validIds);
+            } catch (e) {
+              if (!controller.isClosed) controller.addError(e);
+            }
+          }, onError: controller.addError);
     };
 
     controller.onCancel = () async {
@@ -358,10 +356,9 @@ class TaskService {
     }
 
     result.sort(
-      (a, b) => a['groupName']
-          .toString()
-          .toLowerCase()
-          .compareTo(b['groupName'].toString().toLowerCase()),
+      (a, b) => a['groupName'].toString().toLowerCase().compareTo(
+        b['groupName'].toString().toLowerCase(),
+      ),
     );
 
     return result;
@@ -396,10 +393,9 @@ class TaskService {
     }
 
     members.sort(
-      (a, b) => a['name']
-          .toString()
-          .toLowerCase()
-          .compareTo(b['name'].toString().toLowerCase()),
+      (a, b) => a['name'].toString().toLowerCase().compareTo(
+        b['name'].toString().toLowerCase(),
+      ),
     );
 
     return members;
@@ -630,17 +626,21 @@ class TaskService {
       throw Exception('Bạn không có quyền xóa công việc này');
     }
 
-    final commentsSnapshot =
-        await _comments.where('taskId', isEqualTo: freshTask.taskId).get();
+    final commentsSnapshot = await _comments
+        .where('taskId', isEqualTo: freshTask.taskId)
+        .get();
 
-    final logsSnapshot =
-        await _activityLogs.where('taskId', isEqualTo: freshTask.taskId).get();
+    final logsSnapshot = await _activityLogs
+        .where('taskId', isEqualTo: freshTask.taskId)
+        .get();
 
-    final notificationsSnapshot =
-        await _notifications.where('taskId', isEqualTo: freshTask.taskId).get();
+    final notificationsSnapshot = await _notifications
+        .where('taskId', isEqualTo: freshTask.taskId)
+        .get();
 
-    final attachmentsSnapshot =
-        await _attachments.where('taskId', isEqualTo: freshTask.taskId).get();
+    final attachmentsSnapshot = await _attachments
+        .where('taskId', isEqualTo: freshTask.taskId)
+        .get();
 
     final batch = _firestore.batch();
 
@@ -687,16 +687,16 @@ class TaskService {
         .orderBy('createdAt', descending: false)
         .snapshots()
         .asyncMap((snapshot) async {
-      final task = await getTaskById(taskId);
+          final task = await getTaskById(taskId);
 
-      if (task == null) {
-        return <TaskCommentModel>[];
-      }
+          if (task == null) {
+            return <TaskCommentModel>[];
+          }
 
-      return snapshot.docs
-          .map((doc) => TaskCommentModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => TaskCommentModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   }
 
   Future<void> addComment({
@@ -769,16 +769,16 @@ class TaskService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .asyncMap((snapshot) async {
-      final task = await getTaskById(taskId);
+          final task = await getTaskById(taskId);
 
-      if (task == null) {
-        return <TaskActivityLogModel>[];
-      }
+          if (task == null) {
+            return <TaskActivityLogModel>[];
+          }
 
-      return snapshot.docs
-          .map((doc) => TaskActivityLogModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => TaskActivityLogModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   }
 
   Stream<List<NotificationModel>> streamMyNotifications() {
@@ -809,9 +809,7 @@ class TaskService {
     if ((data['userId'] ?? '').toString() != uid) return;
     if ((data['isRead'] ?? false) == true) return;
 
-    await _notifications.doc(notificationId).update({
-      'isRead': true,
-    });
+    await _notifications.doc(notificationId).update({'isRead': true});
   }
 
   Future<void> markAllNotificationsAsRead() async {
@@ -839,23 +837,24 @@ class TaskService {
 
   Stream<List<AttachmentModel>> streamAttachments(String taskId) {
     final uid = currentUserId;
-    if (uid.isEmpty) return const Stream.empty();
 
-    return _attachments
-        .where('taskId', isEqualTo: taskId)
-        .orderBy('uploadedAt', descending: true)
-        .snapshots()
-        .asyncMap((snapshot) async {
-      final task = await getTaskById(taskId);
+    if (uid.isEmpty) {
+      return const Stream.empty();
+    }
 
-      if (task == null) {
-        return <AttachmentModel>[];
-      }
+    return _attachments.where('taskId', isEqualTo: taskId).snapshots().asyncMap(
+      (snapshot) async {
+        final task = await getTaskById(taskId);
 
-      return snapshot.docs
-          .map((doc) => AttachmentModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
+        if (task == null) {
+          return <AttachmentModel>[];
+        }
+
+        return snapshot.docs
+            .map((doc) => AttachmentModel.fromMap(doc.data(), doc.id))
+            .toList();
+      },
+    );
   }
 
   Future<void> addAttachment({

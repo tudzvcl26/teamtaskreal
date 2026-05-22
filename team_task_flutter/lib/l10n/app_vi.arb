@@ -1,0 +1,26 @@
+{
+  "@@locale": "vi",
+  "appTitle": "Team Task",
+  "profileLoadError": "Không tải được hồ sơ",
+  "retry": "Thử lại",
+  "noData": "Không có dữ liệu",
+  "activeTasks": "CÔNG VIỆC ĐANG LÀM",
+  "completedTasks": "ĐÃ HOÀN THÀNH",
+  "generalSettings": "CÀI ĐẶT CHUNG",
+  "editProfile": "Chỉnh sửa hồ sơ",
+  "changePassword": "Đổi mật khẩu",
+  "darkMode": "Chế độ tối",
+  "language": "Ngôn ngữ",
+  "selectLanguage": "Chọn ngôn ngữ",
+  "selectedLanguage": "Đã chọn {language}",
+  "@selectedLanguage": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "logout": "Đăng xuất",
+  "appVersion": "Team Task v2.4.0 • Xây dựng cho Flow",
+  "vietnamese": "Tiếng Việt",
+  "english": "English",
+  "japanese": "日本語"
+}

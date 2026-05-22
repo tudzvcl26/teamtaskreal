@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/screens/auth/login_screen.dart';
 import 'package:team_task_flutter/screens/home/home_screen.dart';
@@ -37,9 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> handleRegister() async {
@@ -71,11 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         isLoading = true;
       });
 
-      await authService.register(
-        name: name,
-        email: email,
-        password: password,
-      );
+      await authService.register(name: name, email: email, password: password);
 
       if (!mounted) return;
 
@@ -155,10 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 72,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF000666),
-                          Color(0xFF1A237E),
-                        ],
+                        colors: [Color(0xFF000666), Color(0xFF1A237E)],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -223,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8),
                         CustomTextField(
                           controller: nameController,
-                          hintText: 'Nhập họ và tên',
+                          hintText: 'Nhập họ và tên'.tr(context),
                           prefixIcon: Icons.person_outline,
                         ),
                         const SizedBox(height: 16),
@@ -238,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8),
                         CustomTextField(
                           controller: emailController,
-                          hintText: 'Nhập email',
+                          hintText: 'Nhập email'.tr(context),
                           prefixIcon: Icons.mail_outline,
                           keyboardType: TextInputType.emailAddress,
                         ),
@@ -254,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8),
                         CustomTextField(
                           controller: passwordController,
-                          hintText: 'Nhập mật khẩu',
+                          hintText: 'Nhập mật khẩu'.tr(context),
                           prefixIcon: Icons.lock_outline,
                           obscureText: true,
                         ),
@@ -270,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8),
                         CustomTextField(
                           controller: confirmPasswordController,
-                          hintText: 'Nhập lại mật khẩu',
+                          hintText: 'Nhập lại mật khẩu'.tr(context),
                           prefixIcon: Icons.verified_user_outlined,
                           obscureText: true,
                         ),
@@ -278,7 +272,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isLoading
                             ? const Center(child: CircularProgressIndicator())
                             : PrimaryButton(
-                                text: 'Đăng ký',
+                                text: 'Đăng ký'.tr(context),
                                 onPressed: handleRegister,
                               ),
                         const SizedBox(height: 16),
@@ -304,7 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       TextButton(
                         onPressed: goToLogin,
-                        child: const Text('Đăng nhập'),
+                        child: Text('Đăng nhập'.tr(context)),
                       ),
                     ],
                   ),

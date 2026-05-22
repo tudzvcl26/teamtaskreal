@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../models/task_activity_log_model.dart';
 
@@ -6,11 +7,7 @@ class TaskActivitySection extends StatelessWidget {
   final List<TaskActivityLogModel> logs;
   final Future<String> Function(String userId)? getUserName;
 
-  const TaskActivitySection({
-    super.key,
-    required this.logs,
-    this.getUserName,
-  });
+  const TaskActivitySection({super.key, required this.logs, this.getUserName});
 
   static const String _headlineFont = 'Manrope';
   static const String _bodyFont = 'Inter';
@@ -74,11 +71,7 @@ class TaskActivitySection extends StatelessWidget {
               ),
             ),
             if (!isLast)
-              Container(
-                width: 2,
-                height: 58,
-                color: Colors.grey.shade300,
-              ),
+              Container(width: 2, height: 58, color: Colors.grey.shade300),
           ],
         ),
         const SizedBox(width: 14),
@@ -144,10 +137,7 @@ class TaskActivitySection extends StatelessWidget {
         ),
         child: Text(
           'Chưa có hoạt động',
-          style: TextStyle(
-            fontFamily: _bodyFont,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontFamily: _bodyFont, color: Colors.grey.shade600),
         ),
       );
     }
@@ -171,15 +161,13 @@ class TaskActivitySection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          ...logs.asMap().entries.map(
-            (entry) {
-              final index = entry.key;
-              final log = entry.value;
-              final isLast = index == logs.length - 1;
+          ...logs.asMap().entries.map((entry) {
+            final index = entry.key;
+            final log = entry.value;
+            final isLast = index == logs.length - 1;
 
-              return _buildLogItem(log, isLast);
-            },
-          ),
+            return _buildLogItem(log, isLast);
+          }),
         ],
       ),
     );

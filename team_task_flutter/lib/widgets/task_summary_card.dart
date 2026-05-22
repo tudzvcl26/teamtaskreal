@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class TaskSummaryCard extends StatelessWidget {
   final String title;
@@ -31,11 +32,7 @@ class TaskSummaryCard extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: color.withOpacity(0.15),
-            child: Icon(
-              icon,
-              color: color,
-              size: 18,
-            ),
+            child: Icon(icon, color: color, size: 18),
           ),
           const SizedBox(height: 8),
           Text(
@@ -53,7 +50,7 @@ class TaskSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            title,
+            title.tr(context),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,

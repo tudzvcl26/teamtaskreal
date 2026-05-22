@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/core/constants/group_style_data.dart';
@@ -8,10 +9,7 @@ import 'package:team_task_flutter/services/group_service.dart';
 class CreateEditGroupScreen extends StatefulWidget {
   final GroupModel? group;
 
-  const CreateEditGroupScreen({
-    super.key,
-    this.group,
-  });
+  const CreateEditGroupScreen({super.key, this.group});
 
   @override
   State<CreateEditGroupScreen> createState() => _CreateEditGroupScreenState();
@@ -32,10 +30,12 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
   @override
   void initState() {
     super.initState();
-    groupNameController =
-        TextEditingController(text: widget.group?.groupName ?? '');
-    descriptionController =
-        TextEditingController(text: widget.group?.description ?? '');
+    groupNameController = TextEditingController(
+      text: widget.group?.groupName ?? '',
+    );
+    descriptionController = TextEditingController(
+      text: widget.group?.description ?? '',
+    );
     selectedColor = widget.group?.groupColor ?? 'indigo';
     selectedIcon = widget.group?.groupIcon ?? 'group_work';
   }
@@ -48,9 +48,9 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> handleSave() async {
@@ -171,7 +171,10 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                             color: const Color(0xFFE0E7FF),
                             borderRadius: BorderRadius.circular(19),
                           ),
-                          child: const Icon(Icons.person, color: AppColors.primary),
+                          child: const Icon(
+                            Icons.person,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ],
                     ),
@@ -249,7 +252,8 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                                   const SizedBox(width: 18),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const Text(
                                           'Màu chủ đạo',
@@ -263,31 +267,36 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                                         Wrap(
                                           spacing: 10,
                                           runSpacing: 10,
-                                          children: GroupStyleData.colorKeys.map((key) {
-                                            final color = GroupStyleData.bgColor(key);
-                                            final selected = selectedColor == key;
-                                            return GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedColor = key;
-                                                });
-                                              },
-                                              child: Container(
-                                                width: 34,
-                                                height: 34,
-                                                decoration: BoxDecoration(
-                                                  color: color,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: selected
-                                                        ? AppColors.primary
-                                                        : Colors.transparent,
-                                                    width: 3,
+                                          children: GroupStyleData.colorKeys
+                                              .map((key) {
+                                                final color =
+                                                    GroupStyleData.bgColor(key);
+                                                final selected =
+                                                    selectedColor == key;
+                                                return GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      selectedColor = key;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    width: 34,
+                                                    height: 34,
+                                                    decoration: BoxDecoration(
+                                                      color: color,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: selected
+                                                            ? AppColors.primary
+                                                            : Colors
+                                                                  .transparent,
+                                                        width: 3,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
+                                                );
+                                              })
+                                              .toList(),
                                         ),
                                       ],
                                     ),
@@ -353,8 +362,10 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                               const SizedBox(height: 8),
                               TextField(
                                 controller: groupNameController,
-                                decoration: const InputDecoration(
-                                  hintText: 'Nhập tên nhóm',
+                                decoration: InputDecoration(
+                                  hintText: 'Nhập tên nhóm'
+                                      .tr(context)
+                                      .tr(context),
                                 ),
                               ),
                               const SizedBox(height: 18),
@@ -370,8 +381,10 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                               TextField(
                                 controller: descriptionController,
                                 maxLines: 4,
-                                decoration: const InputDecoration(
-                                  hintText: 'Nhập mô tả nhóm',
+                                decoration: InputDecoration(
+                                  hintText: 'Nhập mô tả nhóm'
+                                      .tr(context)
+                                      .tr(context),
                                 ),
                               ),
                               if (isEdit) ...[
@@ -421,7 +434,9 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                               ],
                               const SizedBox(height: 26),
                               isLoading
-                                  ? const Center(child: CircularProgressIndicator())
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
                                   : Column(
                                       children: [
                                         SizedBox(
@@ -430,7 +445,9 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                                           child: ElevatedButton(
                                             onPressed: handleSave,
                                             child: Text(
-                                              isEdit ? 'Lưu thay đổi' : 'Tạo nhóm',
+                                              isEdit
+                                                  ? 'Lưu thay đổi'
+                                                  : 'Tạo nhóm',
                                             ),
                                           ),
                                         ),
@@ -439,8 +456,9 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                                           width: double.infinity,
                                           height: 54,
                                           child: OutlinedButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('Hủy'),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text('Hủy'.tr(context)),
                                           ),
                                         ),
                                       ],
@@ -467,7 +485,8 @@ class _CreateEditGroupScreenState extends State<CreateEditGroupScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: const [
                                       Text(
                                         'Vùng nguy hiểm',

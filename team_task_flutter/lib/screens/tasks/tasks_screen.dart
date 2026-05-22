@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/widgets/empty_task_state.dart';
 import 'package:team_task_flutter/widgets/task_card.dart';
 import 'package:team_task_flutter/widgets/task_filter_chips.dart';
@@ -14,10 +15,7 @@ import 'task_statistics_screen.dart';
 class TasksScreen extends StatefulWidget {
   final VoidCallback? onOpenProfileTab;
 
-  const TasksScreen({
-    super.key,
-    this.onOpenProfileTab,
-  });
+  const TasksScreen({super.key, this.onOpenProfileTab});
 
   @override
   State<TasksScreen> createState() => _TasksScreenState();
@@ -84,16 +82,14 @@ class _TasksScreenState extends State<TasksScreen> {
   Future<void> _openCreateTask() async {
     final changed = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => const CreateTaskScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const CreateTaskScreen()),
     );
 
     if (changed == true && mounted) {
       setState(() {});
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
             'Đã tạo công việc mới',
             style: TextStyle(fontFamily: _bodyFont),
@@ -106,9 +102,7 @@ class _TasksScreenState extends State<TasksScreen> {
   void _openTaskDetail(TaskModel task) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TaskDetailScreen(taskId: task.taskId),
-      ),
+      MaterialPageRoute(builder: (_) => TaskDetailScreen(taskId: task.taskId)),
     );
   }
 
@@ -122,7 +116,7 @@ class _TasksScreenState extends State<TasksScreen> {
       children: [
         Expanded(
           child: TaskSummaryCard(
-            title: 'Tổng',
+            title: 'Tổng'.tr(context),
             value: '$total',
             icon: Icons.task_alt,
             color: Colors.indigo,
@@ -131,7 +125,7 @@ class _TasksScreenState extends State<TasksScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: TaskSummaryCard(
-            title: 'Đang làm',
+            title: 'Đang làm'.tr(context),
             value: '$doing',
             icon: Icons.loop,
             color: Colors.blue,
@@ -140,7 +134,7 @@ class _TasksScreenState extends State<TasksScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: TaskSummaryCard(
-            title: 'Xong',
+            title: 'Xong'.tr(context),
             value: '$done',
             icon: Icons.check_circle,
             color: Colors.green,
@@ -178,18 +172,13 @@ class _TasksScreenState extends State<TasksScreen> {
     }
 
     if (tasks.isEmpty) {
-      return const EmptyTaskState(
-        message: 'Không có công việc phù hợp',
-      );
+      return const EmptyTaskState(message: 'Không có công việc phù hợp');
     }
 
     return Column(
       children: tasks
           .map(
-            (task) => TaskCard(
-              task: task,
-              onTap: () => _openTaskDetail(task),
-            ),
+            (task) => TaskCard(task: task, onTap: () => _openTaskDetail(task)),
           )
           .toList(),
     );
@@ -209,7 +198,7 @@ class _TasksScreenState extends State<TasksScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(
+            title: Text(
               'Công việc',
               style: TextStyle(
                 fontFamily: _headlineFont,
@@ -241,7 +230,7 @@ class _TasksScreenState extends State<TasksScreen> {
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _openCreateTask,
             icon: const Icon(Icons.add),
-            label: const Text(
+            label: Text(
               'Tạo task',
               style: TextStyle(
                 fontFamily: _bodyFont,
@@ -265,11 +254,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                 ),
                 const SizedBox(height: 14),
-                _buildSummarySection(
-                  total: total,
-                  doing: doing,
-                  done: done,
-                ),
+                _buildSummarySection(total: total, doing: doing, done: done),
                 const SizedBox(height: 14),
                 TaskFilterChips(
                   filters: _filters,

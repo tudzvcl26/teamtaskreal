@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -23,7 +24,7 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: hintText.tr(context),
         prefixIcon: Icon(prefixIcon),
       ),
     );

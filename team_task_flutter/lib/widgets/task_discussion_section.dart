@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 import '../models/task_comment_model.dart';
 
@@ -149,9 +150,9 @@ class TaskDiscussionSection extends StatelessWidget {
                   child: TextField(
                     controller: commentController,
                     style: const TextStyle(fontFamily: _bodyFont),
-                    decoration: const InputDecoration(
-                      hintText: 'Viết bình luận...',
-                      hintStyle: TextStyle(fontFamily: _bodyFont),
+                    decoration: InputDecoration(
+                      hintText: 'Viết bình luận...'.tr(context),
+                      hintStyle: const TextStyle(fontFamily: _bodyFont),
                       border: InputBorder.none,
                     ),
                   ),

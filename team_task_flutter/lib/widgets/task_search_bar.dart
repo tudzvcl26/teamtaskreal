@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 
 class TaskSearchBar extends StatelessWidget {
   final TextEditingController controller;
@@ -23,7 +24,7 @@ class TaskSearchBar extends StatelessWidget {
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
-        hintText: 'Tìm công việc...',
+        hintText: 'Tìm công việc...'.tr(context),
         hintStyle: TextStyle(
           fontFamily: _bodyFont,
           color: Colors.grey.shade500,

@@ -1,0 +1,26 @@
+{
+  "@@locale": "en",
+  "appTitle": "Team Task",
+  "profileLoadError": "Could not load profile",
+  "retry": "Try again",
+  "noData": "No data",
+  "activeTasks": "ACTIVE TASKS",
+  "completedTasks": "COMPLETED",
+  "generalSettings": "GENERAL SETTINGS",
+  "editProfile": "Edit profile",
+  "changePassword": "Change password",
+  "darkMode": "Dark mode",
+  "language": "Language",
+  "selectLanguage": "Select language",
+  "selectedLanguage": "Selected {language}",
+  "@selectedLanguage": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "logout": "Log out",
+  "appVersion": "Team Task v2.4.0 • Built for Flow",
+  "vietnamese": "Tiếng Việt",
+  "english": "English",
+  "japanese": "日本語"
+}

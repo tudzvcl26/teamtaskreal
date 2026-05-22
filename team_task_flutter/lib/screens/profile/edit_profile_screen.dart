@@ -1,15 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/services/profile_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final ProfileData profile;
 
-  const EditProfileScreen({
-    super.key,
-    required this.profile,
-  });
+  const EditProfileScreen({super.key, required this.profile});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -22,28 +24,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController emailController;
 
   bool isLoading = false;
+
   late String selectedAvatar;
 
-  final List<String> avatarOptions = const [
-    '😀',
-    '😎',
-    '🚀',
-    '🔥',
-    '🌟',
-    '🎯',
-    '💼',
-    '📚',
-    '💻',
-    '🧠',
-    '🎨',
-    '👑',
-  ];
+  File? selectedImage;
+
+  final ImagePicker picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
+
     nameController = TextEditingController(text: widget.profile.name);
+
     emailController = TextEditingController(text: widget.profile.email);
+
     selectedAvatar = widget.profile.avatar;
   }
 
@@ -55,86 +50,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
-  Future<void> openAvatarPicker() async {
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: Colors.white,
-      showDragHandle: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Chọn avatar',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: avatarOptions.map((avatar) {
-                  final selected = selectedAvatar == avatar;
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context, avatar);
-                    },
-                    child: Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? const Color(0xFFE0E7FF)
-                            : const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: selected
-                              ? AppColors.primary
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          avatar,
-                          style: const TextStyle(fontSize: 26),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, '');
-                  },
-                  child: const Text('Dùng chữ cái mặc định'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  Future<void> pickImage() async {
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
     );
 
-    if (result != null) {
-      setState(() {
-        selectedAvatar = result;
-      });
-    }
+    if (image == null) return;
+
+    setState(() {
+      selectedImage = File(image.path);
+      selectedAvatar = image.path;
+    });
+
+    showMessage('Đã chọn ảnh');
   }
 
   Future<void> handleSave() async {
@@ -164,13 +98,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (!mounted) return;
 
-      if (email.trim().toLowerCase() != widget.profile.email.trim().toLowerCase()) {
-        showMessage(
-          'Đã lưu hồ sơ. Nếu đổi email, hãy kiểm tra hộp thư để xác nhận email mới.',
-        );
-      } else {
-        showMessage('Cập nhật hồ sơ thành công');
-      }
+      showMessage('Cập nhật hồ sơ thành công');
 
       Navigator.pop(context, true);
     } on FirebaseAuthException catch (e) {
@@ -198,19 +126,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   String getInitials(String name) {
     final trimmed = name.trim();
+
     if (trimmed.isEmpty) return 'U';
+
     final words = trimmed.split(' ');
+
     if (words.length == 1) {
-      return words.first.substring(0, words.first.length >= 2 ? 2 : 1).toUpperCase();
+      return words.first
+          .substring(0, words.first.length >= 2 ? 2 : 1)
+          .toUpperCase();
     }
+
     return (words.first[0] + words.last[0]).toUpperCase();
   }
 
   Widget buildAvatarPreview(String name) {
     if (selectedAvatar.isNotEmpty) {
-      return Text(
-        selectedAvatar,
-        style: const TextStyle(fontSize: 34),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Image.file(
+          File(selectedAvatar),
+          width: 108,
+          height: 108,
+          fit: BoxFit.cover,
+        ),
       );
     }
 
@@ -226,8 +165,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final previewName =
-        nameController.text.trim().isEmpty ? 'User' : nameController.text.trim();
+    final previewName = nameController.text.trim().isEmpty
+        ? 'User'
+        : nameController.text.trim();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -329,7 +269,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 borderRadius: BorderRadius.circular(28),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.10),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.10,
+                                    ),
                                     blurRadius: 22,
                                     offset: const Offset(0, 8),
                                   ),
@@ -349,7 +291,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               right: -2,
                               bottom: -2,
                               child: GestureDetector(
-                                onTap: openAvatarPicker,
+                                onTap: pickImage,
                                 child: Container(
                                   width: 42,
                                   height: 42,
@@ -372,11 +314,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: openAvatarPicker,
-                          child: const Text('Chỉnh avatar'),
-                        ),
-                        const SizedBox(height: 12),
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -391,8 +328,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         const SizedBox(height: 8),
                         TextField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            hintText: 'Nhập họ và tên',
+                          decoration: InputDecoration(
+                            hintText: 'Nhập họ và tên'.tr(context),
                             prefixIcon: Icon(Icons.person_outline),
                           ),
                           onChanged: (_) {
@@ -415,21 +352,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         TextField(
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: 'Nhập email',
+                          decoration: InputDecoration(
+                            hintText: 'Nhập email'.tr(context),
                             prefixIcon: Icon(Icons.email_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Lưu ý: nếu bạn đổi email, hệ thống sẽ gửi email xác nhận đến địa chỉ mới.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.5,
-                              color: AppColors.textSecondary,
-                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -442,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     height: 54,
                                     child: ElevatedButton(
                                       onPressed: handleSave,
-                                      child: const Text('Lưu thay đổi'),
+                                      child: Text('Lưu thay đổi'.tr(context)),
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -451,7 +376,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     height: 54,
                                     child: OutlinedButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text('Hủy'),
+                                      child: Text('Hủy'.tr(context)),
                                     ),
                                   ),
                                 ],

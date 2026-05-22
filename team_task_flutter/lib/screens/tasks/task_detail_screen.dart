@@ -1,5 +1,6 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -11,15 +12,13 @@ import '../../services/task_service.dart';
 import '../../widgets/task_activity_section.dart';
 import '../../widgets/task_attachments_section.dart';
 import '../../widgets/task_discussion_section.dart';
+import '../../widgets/task_workflow_timeline.dart';
 import 'create_edit_task_screen.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
 
-  const TaskDetailScreen({
-    super.key,
-    required this.taskId,
-  });
+  const TaskDetailScreen({super.key, required this.taskId});
 
   @override
   State<TaskDetailScreen> createState() => _TaskDetailScreenState();
@@ -151,19 +150,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  double _progress(TaskModel task) {
-    switch (task.status) {
-      case 'todo':
-        return 0.2;
-      case 'doing':
-        return 0.6;
-      case 'done':
-        return 1.0;
-      default:
-        return 0;
-    }
-  }
-
   bool _isImageAttachment(AttachmentModel attachment) {
     final type = attachment.fileType.toLowerCase();
     final name = attachment.fileName.toLowerCase();
@@ -225,9 +211,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gửi bình luận thất bại: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gửi bình luận thất bại: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -240,14 +226,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Future<void> _openEdit(TaskModel task) async {
     final changed = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => CreateEditTaskScreen(task: task),
-      ),
+      MaterialPageRoute(builder: (_) => CreateEditTaskScreen(task: task)),
     );
 
     if (changed == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã cập nhật công việc')),
+        SnackBar(content: Text('Đã cập nhật công việc'.tr(context))),
       );
     }
   }
@@ -259,7 +243,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã chuyển sang hoàn thành')),
+        SnackBar(content: Text('Đã chuyển sang hoàn thành'.tr(context))),
       );
     } catch (e) {
       if (!mounted) return;
@@ -274,16 +258,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Xóa công việc'),
-        content: const Text('Bạn có chắc muốn xóa công việc này không?'),
+        title: Text('Xóa công việc'.tr(context)),
+        content: Text('Bạn có chắc muốn xóa công việc này không?'.tr(context)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'.tr(context)),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa'),
+            child: Text('Xóa'.tr(context)),
           ),
         ],
       ),
@@ -300,9 +284,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Xóa công việc thất bại: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Xóa công việc thất bại: $e')));
     }
   }
 
@@ -323,49 +307,30 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         _isUploadingAttachment = true;
       });
 
-      final bytes = await pickedFile.readAsBytes();
-
       final originalName = pickedFile.name.isNotEmpty
           ? pickedFile.name
           : 'attachment_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      final safeName = originalName.replaceAll(
-        RegExp(r'[^a-zA-Z0-9._-]'),
-        '_',
-      );
-
-      final storagePath =
-          'task_attachments/${task.groupId}/${task.taskId}/${DateTime.now().millisecondsSinceEpoch}_$safeName';
-
-      final ref = FirebaseStorage.instance.ref().child(storagePath);
-
-      final uploadResult = await ref.putData(
-        bytes,
-        SettableMetadata(
-          contentType: _contentTypeFromFileName(originalName),
-        ),
-      );
-
-      final downloadUrl = await uploadResult.ref.getDownloadURL();
+      final localPath = pickedFile.path;
 
       await _taskService.addAttachment(
         taskId: task.taskId,
         fileName: originalName,
-        fileUrl: downloadUrl,
+        fileUrl: localPath,
         fileType: _fileTypeFromFileName(originalName),
       );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã thêm tệp đính kèm')),
+        SnackBar(content: Text('Đã thêm tệp đính kèm'.tr(context))),
       );
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Thêm tệp thất bại: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Thêm tệp thất bại: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -382,16 +347,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Xóa tệp đính kèm'),
+        title: Text('Xóa tệp đính kèm'.tr(context)),
         content: Text('Bạn có chắc muốn xóa "${attachment.fileName}" không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'.tr(context)),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa'),
+            child: Text('Xóa'.tr(context)),
           ),
         ],
       ),
@@ -408,21 +373,21 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xóa tệp đính kèm')),
+        SnackBar(content: Text('Đã xóa tệp đính kèm'.tr(context))),
       );
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Xóa tệp thất bại: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Xóa tệp thất bại: $e')));
     }
   }
 
   void _openAttachment(AttachmentModel attachment) {
     final isImage = _isImageAttachment(attachment);
 
-    if (isImage && attachment.fileUrl.startsWith('http')) {
+    if (isImage) {
       showDialog(
         context: context,
         builder: (_) => Dialog(
@@ -432,8 +397,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             child: Container(
               color: Colors.black,
               child: InteractiveViewer(
-                child: Image.network(
-                  attachment.fileUrl,
+                child: Image.file(
+                  File(attachment.fileUrl),
                   fit: BoxFit.contain,
                   errorBuilder: (_, __, ___) {
                     return const Padding(
@@ -454,12 +419,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       return;
     }
 
-    Clipboard.setData(
-      ClipboardData(text: attachment.fileUrl),
-    );
+    Clipboard.setData(ClipboardData(text: attachment.fileUrl));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã copy link tệp')),
+      SnackBar(content: Text('Đã copy đường dẫn tệp'.tr(context))),
     );
   }
 
@@ -479,6 +442,53 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           fontSize: 12,
         ),
       ),
+    );
+  }
+
+  Widget _buildWorkflowTimeline(TaskModel task) {
+    return StreamBuilder<List<TaskCommentModel>>(
+      stream: _taskService.streamComments(task.taskId),
+      builder: (context, commentSnapshot) {
+        final comments = commentSnapshot.data ?? [];
+
+        return StreamBuilder<List<AttachmentModel>>(
+          stream: _taskService.streamAttachments(task.taskId),
+          builder: (context, attachmentSnapshot) {
+            final attachments = attachmentSnapshot.data ?? [];
+
+            return StreamBuilder<List<TaskActivityLogModel>>(
+              stream: _taskService.streamActivityLogs(task.taskId),
+              builder: (context, logSnapshot) {
+                final logs = logSnapshot.data ?? [];
+
+                return FutureBuilder<List<String>>(
+                  future: Future.wait([
+                    task.createdBy.isEmpty
+                        ? Future.value('Người tạo')
+                        : _getUserName(task.createdBy),
+                    task.assignedTo == null || task.assignedTo!.isEmpty
+                        ? Future.value('Chưa giao')
+                        : _getUserName(task.assignedTo!),
+                  ]),
+                  builder: (context, userSnapshot) {
+                    final creatorName = userSnapshot.data?[0] ?? 'Người tạo';
+                    final assigneeName = userSnapshot.data?[1] ?? 'Chưa giao';
+
+                    return TaskWorkflowTimeline(
+                      task: task,
+                      creatorName: creatorName,
+                      assigneeName: assigneeName,
+                      comments: comments,
+                      attachments: attachments,
+                      activityLogs: logs,
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -507,7 +517,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(
+            title: Text(
               'Chi tiết công việc',
               style: TextStyle(
                 fontFamily: _headlineFont,
@@ -520,14 +530,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   if (value == 'edit') _openEdit(task);
                   if (value == 'delete') _deleteTask(task);
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: 'edit',
-                    child: Text('Sửa công việc'),
+                    child: Text('Sửa công việc'.tr(context)),
                   ),
                   PopupMenuItem(
                     value: 'delete',
-                    child: Text('Xóa công việc'),
+                    child: Text('Xóa công việc'.tr(context)),
                   ),
                 ],
               ),
@@ -745,40 +755,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7F8FC),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Tiến độ',
-                      style: TextStyle(
-                        fontFamily: _headlineFont,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: LinearProgressIndicator(
-                        value: _progress(task),
-                        minHeight: 10,
-                        backgroundColor: Colors.grey.shade300,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _statusLabel(task.status),
-                      style: const TextStyle(fontFamily: _bodyFont),
-                    ),
-                  ],
-                ),
-              ),
+              _buildWorkflowTimeline(task),
               const SizedBox(height: 18),
               StreamBuilder<List<AttachmentModel>>(
                 stream: _taskService.streamAttachments(task.taskId),
@@ -856,7 +833,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         borderRadius: BorderRadius.circular(18),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Sửa công việc',
                       style: TextStyle(
                         fontFamily: _bodyFont,

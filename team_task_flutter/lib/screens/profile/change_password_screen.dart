@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/services/profile_service.dart';
 
@@ -29,9 +30,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message.tr(context))));
   }
 
   Future<void> handleSave() async {
@@ -117,7 +118,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       color: const Color(0xFFE0E7FF),
                       borderRadius: BorderRadius.circular(19),
                     ),
-                    child: const Icon(Icons.lock_outline, color: AppColors.primary),
+                    child: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -172,7 +176,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       controller: newPasswordController,
                       obscureText: obscureNew,
                       decoration: InputDecoration(
-                        hintText: 'Nhập mật khẩu mới',
+                        hintText: 'Nhập mật khẩu mới'.tr(context),
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           onPressed: () {
@@ -181,7 +185,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             });
                           },
                           icon: Icon(
-                            obscureNew ? Icons.visibility_off : Icons.visibility,
+                            obscureNew
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                         ),
                       ),
@@ -200,7 +206,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       controller: confirmPasswordController,
                       obscureText: obscureConfirm,
                       decoration: InputDecoration(
-                        hintText: 'Nhập lại mật khẩu mới',
+                        hintText: 'Nhập lại mật khẩu mới'
+                            .tr(context)
+                            .tr(context),
                         prefixIcon: const Icon(Icons.lock_reset),
                         suffixIcon: IconButton(
                           onPressed: () {
@@ -235,7 +243,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                 height: 54,
                                 child: ElevatedButton(
                                   onPressed: handleSave,
-                                  child: const Text('Lưu mật khẩu mới'),
+                                  child: Text('Lưu mật khẩu mới'.tr(context)),
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -244,7 +252,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                 height: 54,
                                 child: OutlinedButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text('Hủy'),
+                                  child: Text('Hủy'.tr(context)),
                                 ),
                               ),
                             ],

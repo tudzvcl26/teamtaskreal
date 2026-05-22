@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/core/constants/group_style_data.dart';
 import 'package:team_task_flutter/models/group_model.dart';
@@ -8,12 +9,7 @@ class GroupCard extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onTap;
 
-  const GroupCard({
-    super.key,
-    required this.group,
-    this.subtitle,
-    this.onTap,
-  });
+  const GroupCard({super.key, required this.group, this.subtitle, this.onTap});
 
   String _buildInitials(String text) {
     final words = text

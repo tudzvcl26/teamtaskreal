@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_task_flutter/l10n/app_localizations.dart';
 import 'package:team_task_flutter/core/constants/app_colors.dart';
 import 'package:team_task_flutter/models/dashboard_data.dart';
 import 'package:team_task_flutter/screens/groups/create_edit_group_screen.dart';
@@ -43,9 +44,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Future<void> openCreateGroup() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const CreateEditGroupScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const CreateEditGroupScreen()),
     );
 
     if (result == true) {
@@ -62,9 +61,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => GroupDetailScreen(groupId: groupId),
-      ),
+      MaterialPageRoute(builder: (_) => GroupDetailScreen(groupId: groupId)),
     );
   }
 
@@ -80,9 +77,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         onPressed: openCreateGroup,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -91,9 +86,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           future: dashboardFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return Center(child: CircularProgressIndicator());
             }
 
             if (snapshot.hasError) {
@@ -118,7 +111,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: refreshDashboard,
-                        child: const Text('Thử lại'),
+                        child: Text('Thử lại'.tr(context)),
                       ),
                     ],
                   ),
@@ -127,9 +120,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             }
 
             if (!snapshot.hasData) {
-              return const Center(
-                child: Text('Không có dữ liệu'),
-              );
+              return Center(child: Text('Không có dữ liệu'.tr(context)));
             }
 
             final dashboard = snapshot.data!;
@@ -165,12 +156,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     const SizedBox(height: 14),
                     dashboard.todayTasks.isNotEmpty
                         ? UpcomingDeadlineCard(
-                            dayText: 'Hôm nay',
+                            dayText: 'Hôm nay'.tr(context),
                             title: dashboard.todayTasks.first['title'] ?? '',
                           )
-                        : const UpcomingDeadlineCard(
-                            dayText: 'Chưa có',
-                            title: 'Không có hạn chót gần nhất',
+                        : UpcomingDeadlineCard(
+                            dayText: 'Chưa có'.tr(context),
+                            title: 'Không có hạn chót gần nhất'.tr(context),
                           ),
                   ],
                 ),
@@ -188,10 +179,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Row(
           children: const [
-            Icon(
-              Icons.menu,
-              color: AppColors.primary,
-            ),
+            Icon(Icons.menu, color: AppColors.primary),
             SizedBox(width: 10),
             Text(
               'Team Task',
@@ -212,10 +200,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               color: const Color(0xFFE0E7FF),
               borderRadius: BorderRadius.circular(19),
             ),
-            child: const Icon(
-              Icons.person,
-              color: AppColors.primary,
-            ),
+            child: const Icon(Icons.person, color: AppColors.primary),
           ),
         ),
       ],
@@ -237,10 +222,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         const SizedBox(height: 4),
         Text(
           'Bạn có ${dashboard.totalTasks} công việc hiện tại.',
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -249,7 +231,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildSearchBox() {
     return TextField(
       decoration: InputDecoration(
-        hintText: 'Tìm kiếm công việc, nhóm...',
+        hintText: 'Tìm kiếm công việc, nhóm...'.tr(context),
         prefixIcon: const Icon(Icons.search),
         filled: true,
         fillColor: const Color(0xFFF1F3F5),
@@ -323,7 +305,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
             GestureDetector(
               onTap: openGroupsScreen,
-              child: const Text(
+              child: Text(
                 'Xem tất cả',
                 style: TextStyle(
                   fontSize: 14,
@@ -338,9 +320,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         dashboard.recentGroups.isEmpty
             ? const Text(
                 'Chưa có nhóm nào',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(color: AppColors.textSecondary),
               )
             : SizedBox(
                 height: 130,
@@ -385,19 +365,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 color: AppColors.primary,
               ),
             ),
-            Icon(
-              Icons.more_horiz,
-              color: AppColors.textSecondary,
-            ),
+            Icon(Icons.more_horiz, color: AppColors.textSecondary),
           ],
         ),
         const SizedBox(height: 14),
         dashboard.todayTasks.isEmpty
             ? const Text(
                 'Hôm nay không có công việc nào',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(color: AppColors.textSecondary),
               )
             : Column(
                 children: dashboard.todayTasks.map((task) {
